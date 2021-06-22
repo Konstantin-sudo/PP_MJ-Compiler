@@ -2,6 +2,6 @@ program MJProgram
 	int x, y;
 {
 	void main() {
-		
+		int 123alkjsdf;
 	}
 }

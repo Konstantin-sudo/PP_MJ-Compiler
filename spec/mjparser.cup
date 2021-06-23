@@ -1,0 +1,132 @@
+
+
+terminal PROG, IDENT, LBRACE, RBRACE;
+
+terminal CONST, SEMI, COMMA, EQUAL, NUM, CHAR, BOOL;
+terminal LSQUARE, RSQUARE;
+
+terminal LBRACKET, RBRACKET;
+terminal VOID;
+
+
+nonterminal Program, DeclarationList, MethodDeclList;
+
+nonterminal Declaration, ConstDeclList, VarDeclList;
+nonterminal Type, ConstDeclExpressionList, ConstDeclExpression, ConstValue;
+nonterminal VarIdentList, VarIdent;
+
+nonterminal MethodDecl, MethodReturnType, FormParsList, StatementList;
+nonterminal Type;
+nonterminal FormPars, FormParsDecl;
+nonterminal StatementList;
+
+
+Program ::= (Program) PROG IDENT:programName DeclarationList LBRACE MethodDeclList RBRACE;
+
+
+
+/*--------------------- Declarations ---------------------*/	
+DeclarationList ::= (DeclarationList) DeclarationList Declaration 
+					|
+					(NoDeclarationList) /*epsilon*/
+					;
+					
+Declaration ::= (ConstDeclarations) ConstDeclList
+				|
+				(VarDeclarations) VarDeclList 
+				;
+
+
+	/*--------------------- Constant declaration ---------------------*/				
+
+ConstDeclList ::= (ConstDeclList) CONST Type:constType ConstDeclExpressionList SEMI;
+
+ConstDeclExpressionList ::= (ConstDeclExpressionList) ConstDeclExpressionList COMMA ConstDeclExpression
+						|
+						(SingleConstDeclExpression) ConstDeclExpression
+						;
+			
+ConstDeclExpression ::= (ConstDeclExpression) IDENT:constIdent EQUAL ConstValue:constValue;
+
+ConstValue ::= (ConstValueNum) NUM
+			   |
+			   (ConstValueChar) CHAR 
+			   |
+			   (ConstValueBool) BOOL
+			   ;
+
+	/*--------------------- Var declaration ---------------------*/	
+
+VarDeclList ::= (VarDeclList) Type:varType VarIdentList SEMI;
+
+VarIdentList ::= (VarIdentList) VarIdentList COMMA VarIdent
+				 |
+				 (SingleVarIdent) VarIdent 
+				 ;
+			
+VarIdent ::= (VarIdent) IDENT:varIdent
+			 |
+			 (ArrayIdent) IDENT:arrayIdent LSQUARE RSQUARE
+			 ;
+
+
+
+/*--------------------- Method declarations ---------------------*/
+
+MethodDeclList ::= (MethodDeclList) MethodDeclList MethodDecl
+				   | 
+				   (NoMethodDeclList) /*epsilon*/
+				   ;
+
+MethodDecl ::= (MethodDecl) MethodReturnType IDENT:methodName LBRACKET FormParsList RBRACKET VarDeclList LBRACE StatementList RBRACE;
+
+
+MethodReturnType ::= (BasicReturnType) Type
+					 |
+					 (VoidReturnType) VOID
+					 ;
+				
+Type ::= (Type) IDENT;
+
+
+FormParsList ::= (FormParsList) FormPars		 
+				 |
+				 (NoFormParsList) /*epsilon*/
+				 ;
+				 			 
+FormPars ::= (FormParsmDeclList) FormPars COMMA FormParsDecl
+			 |
+			 (SingleFormParsDecl) FormParsDecl
+			 ;
+			 
+/* varDecl instead FormParsDecl ? */
+FormParsDecl ::= (FormParsDecl) Type IDENT
+			   |
+			   (FormParsDeclArray) Type IDENT LBRACE RBRACE
+			   ;
+		
+				 
+
+/* change this */
+StatementList ::= (emptyMethodBody) /* epsilon */;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -25,10 +25,10 @@ Program ::= (Program) PROG IDENT:programName DeclarationList LBRACE MethodDeclLi
 
 
 
-/*--------------------- Declarations ---------------------*/	
+/*------------------------------- Declarations -------------------------------*/	
 DeclarationList ::= (DeclarationList) DeclarationList Declaration 
 					|
-					(NoDeclarationList) /*epsilon*/
+					(EmptyDeclarationList) /*epsilon*/
 					;
 					
 Declaration ::= (ConstDeclarations) ConstDeclList
@@ -37,7 +37,7 @@ Declaration ::= (ConstDeclarations) ConstDeclList
 				;
 
 
-	/*--------------------- Constant declaration ---------------------*/				
+	/*------------------------------- Constant declaration -------------------------------*/				
 
 ConstDeclList ::= (ConstDeclList) CONST Type:constType ConstDeclExpressionList SEMI;
 
@@ -55,7 +55,8 @@ ConstValue ::= (ConstValueNum) NUM
 			   (ConstValueBool) BOOL
 			   ;
 
-	/*--------------------- Var declaration ---------------------*/	
+
+	/*------------------------------- Var declaration -------------------------------*/	
 
 VarDeclList ::= (VarDeclList) Type:varType VarIdentList SEMI;
 
@@ -71,11 +72,12 @@ VarIdent ::= (VarIdent) IDENT:varIdent
 
 
 
-/*--------------------- Method declarations ---------------------*/
+
+/*------------------------------- Method declarations -------------------------------*/
 
 MethodDeclList ::= (MethodDeclList) MethodDeclList MethodDecl
 				   | 
-				   (NoMethodDeclList) /*epsilon*/
+				   (EmptyMethodDeclList) /*epsilon*/
 				   ;
 
 MethodDecl ::= (MethodDecl) MethodReturnType IDENT:methodName LBRACKET FormParsList RBRACKET VarDeclList LBRACE StatementList RBRACE;
@@ -91,7 +93,7 @@ Type ::= (Type) IDENT;
 
 FormParsList ::= (FormParsList) FormPars		 
 				 |
-				 (NoFormParsList) /*epsilon*/
+				 (EmptyFormParsList) /*epsilon*/
 				 ;
 				 			 
 FormPars ::= (FormParsmDeclList) FormPars COMMA FormParsDecl
@@ -101,32 +103,123 @@ FormPars ::= (FormParsmDeclList) FormPars COMMA FormParsDecl
 			 
 /* varDecl instead FormParsDecl ? */
 FormParsDecl ::= (FormParsDecl) Type IDENT
-			   |
-			   (FormParsDeclArray) Type IDENT LBRACE RBRACE
-			   ;
+			     |
+			     (FormParsDeclArray) Type IDENT LBRACE RBRACE
+			     ;
 		
 				 
 
-/* change this */
-StatementList ::= (emptyMethodBody) /* epsilon */;
+
+	/*------------------------------- Statements -------------------------------*/
+		
+StatementList ::= (StatementList) StatementList Statement
+ 				  |
+ 				  (EmptyStatementList) /*epsilon*/
+ 				  ;
+
+Statement ::= (DesignatorStatement) DesignatorStatement SEMI
+			  |
+			  (ReadStatement) READ LPAREN Designator RPAREN SEMI
+			  |
+			  (PrintStatement) PRINT LPAREN ExprPrint RPAREN SEMI
+			  ;
+			  /*if else*/
+		
+DesignatorStatement ::= (DesignatorAssign) Designator EQUALS Expr
+						|
+						(DesignatorInc) Designator INCREMENT
+						|
+						(DesignatorDec) Designator DECREMENT
+						;
+		
+Designator ::= (Designator) IDENT ExprDesignator;
 
 
+	/*------------------------------- Expressions -------------------------------*/
+	
+ExprDesignator ::= (ExprDesignator) LSQUARE Expr RSQUARE
+				   |
+				   (EmptyExprDesignator) /*epsilon*/
+				   
+ExprPrint ::= (ExprPrint) Expr 
+			  |
+			  (ExprPintAndNumConst) Expr COMMA NUM
+			  ;
+
+Expr ::= (SingleTermExpr) Term
+		 |
+		 (NegativeSingleTermExpr) MINUS Term
+		 |
+		 (TermExprAddopList) Expr Addop Term
+		 |
+		 (TernarOpExpr) TernarOp
+		 ;
+								
+Term ::= (SingleTermFactor) Factor
+		 |
+		 (TermFactorMulopList) Term Mulop Factor
+		 ;
+
+Factor ::= (FactorDesignator) Designator
+		   |
+		   (FactorNumConst) NUM
+		   |
+		   (FactorCharConst) CHAR
+		   |
+		   (FactorBoolConst) BOOL
+		   |
+		   (FactorExpr) LPAREN Expr RPAREN
+		   |
+		   (FactorArray) NEW Type LSQUARE Expr RSQUARE
+		   ;	
+			   
+
+	/*------------------------------- Operators -------------------------------*/
+	
+Addop ::= (PlusOp) PLUS
+		  |
+		  (MinusOp) MINUS
+		  ;
+
+Mulop ::= (MultipleOp) MUL
+		  |
+		  (DivideOp) DIV 
+		  |
+		  (ModuleOp) MOD
+		  ;
+
+Relop ::= (EqualToOp) EQUAL_TO
+		  |
+		  (NotEqualToOp) NOT_EQUAL_TO
+		  |
+		  (GreaterThenOp) GREATER
+		  |
+		  (GreaterThenOrEqualToOp) GREATER_EQUAL
+		  |
+		  (LessThenOp) LESS
+		  |
+		  (LessThenOrEqualToOp) LESS_EQUAL
+		  ;
+		  
+TernarOp ::= (TernarOp) CondFact QUESTION Expr COLON Expr;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	/*------------------------------- Conditions -------------------------------*/
+	
+Condition ::= (ConditionList) Condition OR CondTerm
+			  |
+			  (SingleCondition) CondTerm
+			  ;
+			  
+CondTerm ::= (CondTermList) CondTerm AND CondFact
+			 |
+			 (SingleCondTerm) CondFact
+			 ;
+			  
+CondFact ::= (CondFact) Expr
+			 |
+			 (CondFactWithRelop) Expr Relop Expr
+			 ;
+			  
 
 

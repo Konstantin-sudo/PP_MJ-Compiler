@@ -6,7 +6,7 @@ terminal LSQUARE, RSQUARE;
 terminal LPAREN, RPAREN;
 terminal VOID;
 
-terminal READ, PRINT, INCREMENT, DECREMENT, EQUALS;
+terminal READ, PRINT, IF, ELSE, INCREMENT, DECREMENT, EQUALS;
 terminal MINUS, NEW;
 terminal PLUS, MUL, DIV, MOD, EQUAL_TO, NOT_EQUAL_TO, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, QUESTION, COLON;
 terminal OR, AND;
@@ -21,10 +21,12 @@ nonterminal Type;
 nonterminal FormPars, FormParsDecl;
 nonterminal StatementList;
 
-nonterminal Statement, DesignatorStatement, Designator, ExprPrint, Expr, ExprDesignator;
+nonterminal Statement, DesignatorStatement, Designator, ExprPrint, Else, Expr, ExprDesignator;
 nonterminal Term, Addop, TernarOp, Factor, Mulop;
 nonterminal Relop, CondFact;
 nonterminal Condition, CondTerm;
+
+
 
 Program ::= (Program) PROG IDENT:programName DeclarationList LBRACE MethodDeclList RBRACE;
 
@@ -127,8 +129,17 @@ Statement ::= (DesignatorStatement) DesignatorStatement SEMI
 			  (ReadStatement) READ LPAREN Designator RPAREN SEMI
 			  |
 			  (PrintStatement) PRINT LPAREN ExprPrint RPAREN SEMI
+			  |
+			  (NestedStatement) LBRACE StatementList RBRACE
+			  |
+			  (IfElseStatement) IF LPAREN Condition RPAREN Statement Else
 			  ;
-			  /*if else*/
+
+Else ::= (ElseStatement) ELSE Statement
+		 |
+		 (NoElseStatement) /*epsilon*/
+		 ;			  
+			  
 		
 DesignatorStatement ::= (DesignatorAssign) Designator EQUALS Expr
 						|
@@ -156,8 +167,6 @@ Expr ::= (SingleTermExpr) Term
 		 (NegativeSingleTermExpr) MINUS Term
 		 |
 		 (TermExprAddopList) Expr Addop Term
-		 |
-		 (TernarOpExpr) TernarOp
 		 ;
 								
 Term ::= (SingleTermFactor) Factor
@@ -178,7 +187,6 @@ Factor ::= (FactorDesignator) Designator
 		   (FactorArray) NEW Type LSQUARE Expr RSQUARE
 		   ;	
 			   
-
 
 	/*------------------------------- Operators -------------------------------*/
 	
@@ -207,8 +215,6 @@ Relop ::= (EqualToOp) EQUAL_TO
 		  (LessThenOrEqualToOp) LESS_EQUAL
 		  ;
 		  
-TernarOp ::= (TernarOp) CondFact QUESTION Expr COLON Expr;
-
 
 
 	/*------------------------------- Conditions -------------------------------*/

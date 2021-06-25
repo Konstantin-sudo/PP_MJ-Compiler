@@ -1,14 +1,62 @@
 
+package rs.ac.bg.etf.pp1;
 
-terminal PROG, IDENT, LBRACE, RBRACE;
-terminal CONST, SEMI, COMMA, EQUAL, NUM, CHAR, BOOL;
+import java_cup.runtime.*;
+import org.apache.log4j.*;
+import rs.ac.bg.etf.pp1.ast.*;
+
+parser code {:
+
+	Logger log = Logger.getLogger(getClass());
+   
+   
+    // slede redefinisani metodi za prijavu gresaka radi izmene teksta poruke
+     
+    public void report_fatal_error(String message, Object info) throws java.lang.Exception {
+      done_parsing();
+      report_error(message, info);
+    }
+  
+    public void syntax_error(Symbol cur_token) {
+        report_error("\nSintaksna greska", cur_token);
+    }
+  
+    public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
+        report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+    }
+
+    public void report_error(String message, Object info) {
+    	StringBuilder msg = new StringBuilder(message); 
+    	if (info instanceof Symbol)
+            msg.append (" na liniji ").append(((Symbol)info).left);
+        log.error(msg.toString());
+    }
+
+
+:}
+
+scan with {:
+	Symbol s = this.getScanner().next_token();
+	if (s != null && s.value != null) 
+		log.info(s.toString() + " " + s.value.toString());
+	return s;
+:}
+
+
+
+terminal PROG, LBRACE, RBRACE;
+terminal CONST, SEMI, COMMA, EQUAL;
+terminal Integer NUM;
+terminal Character CHAR;
+terminal Boolean BOOL;
+terminal String IDENT;
 terminal LSQUARE, RSQUARE;
 terminal LPAREN, RPAREN;
 terminal VOID;
 
 terminal READ, PRINT, IF, ELSE, INCREMENT, DECREMENT, EQUALS;
 terminal MINUS, NEW;
-terminal PLUS, MUL, DIV, MOD, EQUAL_TO, NOT_EQUAL_TO, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, QUESTION, COLON;
+terminal PLUS, MUL, DIV, MOD, EQUAL_TO, NOT_EQUAL_TO, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
 terminal OR, AND;
 
 
@@ -17,12 +65,10 @@ nonterminal Declaration, ConstDeclList, VarDeclList;
 nonterminal Type, ConstDeclExpressionList, ConstDeclExpression, ConstValue;
 nonterminal VarIdentList, VarIdent;
 nonterminal MethodDecl, MethodReturnType, FormParsList, StatementList;
-nonterminal Type;
 nonterminal FormPars, FormParsDecl;
-nonterminal StatementList;
 
 nonterminal Statement, DesignatorStatement, Designator, ExprPrint, Else, Expr, ExprDesignator;
-nonterminal Term, Addop, TernarOp, Factor, Mulop;
+nonterminal Term, Addop, Factor, Mulop;
 nonterminal Relop, CondFact;
 nonterminal Condition, CondTerm;
 
@@ -156,6 +202,7 @@ Designator ::= (Designator) IDENT ExprDesignator;
 ExprDesignator ::= (ExprDesignator) LSQUARE Expr RSQUARE
 				   |
 				   (EmptyExprDesignator) /*epsilon*/
+				   ;
 				   
 ExprPrint ::= (ExprPrint) Expr 
 			  |

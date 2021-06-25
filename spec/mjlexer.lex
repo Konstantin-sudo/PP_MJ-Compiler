@@ -47,18 +47,13 @@ import java_cup.runtime.Symbol;
 
 
 "program"   { return new_symbol(sym.PROG, yytext()); }
-"break"     { return new_symbol(sym.BREAK, yytext()); }
 "else"		{ return new_symbol(sym.ELSE, yytext()); }
 "const"		{ return new_symbol(sym.CONST, yytext()); }
 "if"		{ return new_symbol(sym.IF, yytext()); }
-"do"		{ return new_symbol(sym.DO, yytext()); }
-"while"		{ return new_symbol(sym.WHILE, yytext()); }
 "new"		{ return new_symbol(sym.NEW, yytext()); }
 "print" 	{ return new_symbol(sym.PRINT, yytext()); }
 "read"		{ return new_symbol(sym.READ, yytext()); }
-"return" 	{ return new_symbol(sym.RETURN, yytext()); }
 "void" 		{ return new_symbol(sym.VOID, yytext()); }
-"continue"	{ return new_symbol(sym.CONTINUE, yytext()); }
 "new"		{ return new_symbol(sym.NEW, yytext()); }
 
 
@@ -84,7 +79,6 @@ import java_cup.runtime.Symbol;
 "--" 		{ return new_symbol(sym.DECREMENT, yytext()); }
 
 ";" 		{ return new_symbol(sym.SEMI, yytext()); }
-":" 		{ return new_symbol(sym.COLON, yytext()); }
 "," 		{ return new_symbol(sym.COMMA, yytext()); }
 
 "(" 		{ return new_symbol(sym.LPAREN, yytext()); }

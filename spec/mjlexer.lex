@@ -44,6 +44,8 @@ import java_cup.runtime.Symbol;
 "\b" 	{ }
 "\f" 	{ }
 
+
+
 "program"   { return new_symbol(sym.PROG, yytext()); }
 "break"     { return new_symbol(sym.BREAK, yytext()); }
 "else"		{ return new_symbol(sym.ELSE, yytext()); }
@@ -57,6 +59,8 @@ import java_cup.runtime.Symbol;
 "return" 	{ return new_symbol(sym.RETURN, yytext()); }
 "void" 		{ return new_symbol(sym.VOID, yytext()); }
 "continue"	{ return new_symbol(sym.CONTINUE, yytext()); }
+"new"		{ return new_symbol(sym.NEW, yytext()); }
+
 
 "+" 		{ return new_symbol(sym.PLUS, yytext()); }
 "-" 		{ return new_symbol(sym.MINUS, yytext()); }
@@ -64,10 +68,10 @@ import java_cup.runtime.Symbol;
 "/" 		{ return new_symbol(sym.DIV, yytext()); }
 "%" 		{ return new_symbol(sym.MOD, yytext()); }
 
-"=" 		{ return new_symbol(sym.EQUAL, yytext()); }
+"=" 		{ return new_symbol(sym.EQUALS, yytext()); }
 
-"==" 		{ return new_symbol(sym.DOUBLE_EQUAL, yytext()); }
-"!=" 		{ return new_symbol(sym.DIFFERENT, yytext()); }
+"==" 		{ return new_symbol(sym.EQUAL_TO, yytext()); }
+"!=" 		{ return new_symbol(sym.NOT_EQUAL_TO, yytext()); }
 ">" 		{ return new_symbol(sym.GREATER, yytext()); }
 ">=" 		{ return new_symbol(sym.GREATER_EQUAL, yytext()); }
 "<" 		{ return new_symbol(sym.LESS, yytext()); }
@@ -76,8 +80,8 @@ import java_cup.runtime.Symbol;
 "&&" 		{ return new_symbol(sym.AND, yytext()); }
 "||" 		{ return new_symbol(sym.OR, yytext()); }
 
-"++" 		{ return new_symbol(sym.INC, yytext()); }
-"--" 		{ return new_symbol(sym.DEC, yytext()); }
+"++" 		{ return new_symbol(sym.INCREMENT, yytext()); }
+"--" 		{ return new_symbol(sym.DECREMENT, yytext()); }
 
 ";" 		{ return new_symbol(sym.SEMI, yytext()); }
 ":" 		{ return new_symbol(sym.COLON, yytext()); }
@@ -87,25 +91,21 @@ import java_cup.runtime.Symbol;
 ")" 		{ return new_symbol(sym.RPAREN, yytext()); }
 "{" 		{ return new_symbol(sym.LBRACE, yytext()); }
 "}"			{ return new_symbol(sym.RBRACE, yytext()); }
-"[" 		{ return new_symbol(sym.LBRACKET, yytext()); }
-"]" 		{ return new_symbol(sym.RBRACKET, yytext()); }
+"[" 		{ return new_symbol(sym.LSQUARE, yytext()); }
+"]" 		{ return new_symbol(sym.RSQUARE, yytext()); }
 
-"?" 		{ return new_symbol(sym.QUESTION, yytext()); }
 
-"true"	 	{ return new_symbol(sym.BOOLEAN, yytext()); }
-"false"	 	{ return new_symbol(sym.BOOLEAN, yytext()); }
+"true"	 	{ return new_symbol(sym.BOOL, yytext()); }
+"false"	 	{ return new_symbol(sym.BOOL, yytext()); }
 
 "//" { yybegin(COMMENT); }
 <COMMENT> . { yybegin(COMMENT); }
 <COMMENT> "\r\n" { yybegin(YYINITIAL); }
 
-//^[0-9]+$ za konstante?
-[0-9]+  { return new_symbol(sym.NUMBER, new Integer (yytext())); }
+[0-9]+  { return new_symbol(sym.NUM, new Integer (yytext())); }
 
-//^([a-z]|[A-Z])[a-z|A-Z|0-9|_]*$ za identifikatore?
 ([a-z]|[A-Z])[a-z|A-Z|0-9|_]* 	{return new_symbol (sym.IDENT, yytext()); }
 
-//"'"."'" { return new_symbol(sym.CHAR, Character.valueOf(yytext().charAt(1))); }
 
 . { System.err.println("Leksicka greska (" + yytext() + ") u liniji: " + (yyline + 1) + ", u koloni: " + (yycolumn + 1)); }
 

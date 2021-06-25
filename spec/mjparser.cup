@@ -48,7 +48,7 @@ terminal PROG, LBRACE, RBRACE;
 terminal CONST, SEMI, COMMA, EQUAL;
 terminal Integer NUM;
 terminal Character CHAR;
-terminal Boolean BOOL;
+terminal String BOOL;
 terminal String IDENT;
 terminal LSQUARE, RSQUARE;
 terminal LPAREN, RPAREN;
@@ -67,7 +67,7 @@ nonterminal VarIdentList, VarIdent;
 nonterminal MethodDecl, MethodReturnType, FormParsList, StatementList;
 nonterminal FormPars, FormParsDecl;
 
-nonterminal Statement, DesignatorStatement, Designator, ExprPrint, Else, Expr, ExprDesignator;
+nonterminal Statement, Matched, Unmatched, DesignatorStatement, Designator, ExprPrint, Expr, ExprDesignator;
 nonterminal Term, Addop, Factor, Mulop;
 nonterminal Relop, CondFact;
 nonterminal Condition, CondTerm;
@@ -79,7 +79,7 @@ Program ::= (Program) PROG IDENT:programName DeclarationList LBRACE MethodDeclLi
 
 
 /*------------------------------- Declarations -------------------------------*/	
-DeclarationList ::= (DeclarationList) DeclarationList Declaration 
+DeclarationList ::= (MultipleDeclarationList) DeclarationList Declaration 
 					|
 					(EmptyDeclarationList) /*epsilon*/
 					;
@@ -94,7 +94,7 @@ Declaration ::= (ConstDeclarations) ConstDeclList
 
 ConstDeclList ::= (ConstDeclList) CONST Type:constType ConstDeclExpressionList SEMI;
 
-ConstDeclExpressionList ::= (ConstDeclExpressionList) ConstDeclExpressionList COMMA ConstDeclExpression
+ConstDeclExpressionList ::= (MultipleConstDeclExpressionList) ConstDeclExpressionList COMMA ConstDeclExpression
 						|
 						(SingleConstDeclExpression) ConstDeclExpression
 						;
@@ -113,12 +113,12 @@ ConstValue ::= (ConstValueNum) NUM
 
 VarDeclList ::= (VarDeclList) Type:varType VarIdentList SEMI;
 
-VarIdentList ::= (VarIdentList) VarIdentList COMMA VarIdent
+VarIdentList ::= (MultipleVarIdent) VarIdentList COMMA VarIdent
 				 |
 				 (SingleVarIdent) VarIdent 
 				 ;
 			
-VarIdent ::= (VarIdent) IDENT:varIdent
+VarIdent ::= (BasicIdent) IDENT:varIdent
 			 |
 			 (ArrayIdent) IDENT:arrayIdent LSQUARE RSQUARE
 			 ;
@@ -128,7 +128,7 @@ VarIdent ::= (VarIdent) IDENT:varIdent
 
 /*------------------------------- Method declarations -------------------------------*/
 
-MethodDeclList ::= (MethodDeclList) MethodDeclList MethodDecl
+MethodDeclList ::= (MultipleMethodDecl) MethodDeclList MethodDecl
 				   | 
 				   (EmptyMethodDeclList) /*epsilon*/
 				   ;
@@ -144,20 +144,20 @@ MethodReturnType ::= (BasicReturnType) Type
 Type ::= (Type) IDENT;
 
 
-FormParsList ::= (FormParsList) FormPars		 
+FormParsList ::= (NotEmptyFormParsList) FormPars		 
 				 |
 				 (EmptyFormParsList) /*epsilon*/
 				 ;
 				 			 
-FormPars ::= (FormParsmDeclList) FormPars COMMA FormParsDecl
+FormPars ::= (MultipleFormParsDecl) FormPars COMMA FormParsDecl
 			 |
 			 (SingleFormParsDecl) FormParsDecl
 			 ;
 			 
 /* varDecl instead FormParsDecl ? */
-FormParsDecl ::= (FormParsDecl) Type IDENT
+FormParsDecl ::= (BasicFormParsDecl) Type IDENT
 			     |
-			     (FormParsDeclArray) Type IDENT LBRACE RBRACE
+			     (ArrayFormParsDecl) Type IDENT LBRACE RBRACE
 			     ;
 		
 				 
@@ -165,33 +165,39 @@ FormParsDecl ::= (FormParsDecl) Type IDENT
 
 	/*------------------------------- Statements -------------------------------*/
 		
-StatementList ::= (StatementList) StatementList Statement
+StatementList ::= (NotEmptyStatementList) StatementList Statement
  				  |
  				  (EmptyStatementList) /*epsilon*/
  				  ;
+ 				  
+ 				  
+Statement ::= (MatchedStatement) Matched
+		      |
+		   	  (UnmatchedStatement) Unmatched
+		   	  ; 
 
-Statement ::= (DesignatorStatement) DesignatorStatement SEMI
-			  |
-			  (ReadStatement) READ LPAREN Designator RPAREN SEMI
-			  |
-			  (PrintStatement) PRINT LPAREN ExprPrint RPAREN SEMI
-			  |
-			  (NestedStatement) LBRACE StatementList RBRACE
-			  |
-			  (IfElseStatement) IF LPAREN Condition RPAREN Statement Else
-			  ;
-
-Else ::= (ElseStatement) ELSE Statement
-		 |
-		 (NoElseStatement) /*epsilon*/
-		 ;			  
+Unmatched ::= (UnmatchedIf) IF LPAREN Condition RPAREN Statement
+		 	  |
+		 	  (UnmatchedIfElse) IF LPAREN Condition RPAREN Matched ELSE Unmatched
+		 	  ;
+		 	
+Matched ::= (DesignatorStmt) DesignatorStatement SEMI
+			|
+			(ReadStatement) READ LPAREN Designator RPAREN SEMI
+			|
+			(PrintStatement) PRINT LPAREN ExprPrint RPAREN SEMI
+			|
+			(NestedStatement) LBRACE StatementList RBRACE
+			|
+			(MatchedIfElse) IF LPAREN Condition RPAREN Matched ELSE Matched
+			;
 			  
 		
-DesignatorStatement ::= (DesignatorAssign) Designator EQUALS Expr
+DesignatorStatement ::= (DesignatorStatementAssign) Designator EQUALS Expr
 						|
-						(DesignatorInc) Designator INCREMENT
+						(DesignatorStatementInc) Designator INCREMENT
 						|
-						(DesignatorDec) Designator DECREMENT
+						(DesignatorStatementDec) Designator DECREMENT
 						;
 		
 Designator ::= (Designator) IDENT ExprDesignator;
@@ -199,26 +205,26 @@ Designator ::= (Designator) IDENT ExprDesignator;
 
 	/*------------------------------- Expressions -------------------------------*/
 	
-ExprDesignator ::= (ExprDesignator) LSQUARE Expr RSQUARE
+ExprDesignator ::= (ArrayExprDesignator) LSQUARE Expr RSQUARE
 				   |
 				   (EmptyExprDesignator) /*epsilon*/
 				   ;
 				   
-ExprPrint ::= (ExprPrint) Expr 
+ExprPrint ::= (SingleExprPrint) Expr 
 			  |
-			  (ExprPintAndNumConst) Expr COMMA NUM
+			  (ExprPrintAndNumConst) Expr COMMA NUM
 			  ;
 
 Expr ::= (SingleTermExpr) Term
 		 |
 		 (NegativeSingleTermExpr) MINUS Term
 		 |
-		 (TermExprAddopList) Expr Addop Term
+		 (TermAddopExprList) Expr Addop Term
 		 ;
 								
 Term ::= (SingleTermFactor) Factor
 		 |
-		 (TermFactorMulopList) Term Mulop Factor
+		 (TermMulopFactorList) Term Mulop Factor
 		 ;
 
 Factor ::= (FactorDesignator) Designator
@@ -266,19 +272,19 @@ Relop ::= (EqualToOp) EQUAL_TO
 
 	/*------------------------------- Conditions -------------------------------*/
 	
-Condition ::= (ConditionList) Condition OR CondTerm
+Condition ::= (ConditionTermDisjunctionList) Condition OR CondTerm
 			  |
-			  (SingleCondition) CondTerm
+			  (SingleConditionTerm) CondTerm
 			  ;
 			  
-CondTerm ::= (CondTermList) CondTerm AND CondFact
+CondTerm ::= (ConditionFactConjunctionList) CondTerm AND CondFact
 			 |
-			 (SingleCondTerm) CondFact
+			 (SingleConditionFact) CondFact
 			 ;
 			  
-CondFact ::= (CondFact) Expr
+CondFact ::= (CondFactExpr) Expr
 			 |
-			 (CondFactWithRelop) Expr Relop Expr
+			 (CondFactExprWithRelop) Expr Relop Expr
 			 ;
 			  
 

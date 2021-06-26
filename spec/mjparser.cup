@@ -32,6 +32,12 @@ parser code {:
         log.error(msg.toString());
     }
 
+	public void report_info(String message, Object info) {
+    	StringBuilder msg = new StringBuilder(message); 
+    	if (info instanceof Symbol)
+            msg.append (" na liniji ").append(((Symbol)info).left);
+        log.info(msg.toString());
+    }
 
 :}
 
@@ -45,7 +51,7 @@ scan with {:
 
 
 terminal PROG, LBRACE, RBRACE;
-terminal CONST, SEMI, COMMA, EQUAL;
+terminal CONST, SEMI, COMMA, EQUALS;
 terminal Integer NUM;
 terminal Character CHAR;
 terminal String BOOL;
@@ -54,7 +60,7 @@ terminal LSQUARE, RSQUARE;
 terminal LPAREN, RPAREN;
 terminal VOID;
 
-terminal READ, PRINT, IF, ELSE, INCREMENT, DECREMENT, EQUALS;
+terminal READ, PRINT, IF, ELSE, INCREMENT, DECREMENT;
 terminal MINUS, NEW;
 terminal PLUS, MUL, DIV, MOD, EQUAL_TO, NOT_EQUAL_TO, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
 terminal OR, AND;
@@ -63,11 +69,11 @@ terminal OR, AND;
 nonterminal Program, DeclarationList, MethodDeclList;
 nonterminal Declaration, ConstDeclList, VarDeclList;
 nonterminal Type, ConstDeclExpressionList, ConstDeclExpression, ConstValue;
-nonterminal VarIdentList, VarIdent;
-nonterminal MethodDecl, MethodReturnType, FormParsList, StatementList;
+nonterminal VarIdentList, VarIdent, VarIdentError;
+nonterminal MethodDecl, MethodReturnType, FormParsList, MethodVarDeclList, StatementList;
 nonterminal FormPars, FormParsDecl;
 
-nonterminal Statement, Matched, Unmatched, DesignatorStatement, Designator, ExprPrint, Expr, ExprDesignator;
+nonterminal Statement, Matched, Unmatched, DesignatorStatement, ExprToAssign, Designator, ExprPrint, Expr, ExprDesignator;
 nonterminal Term, Addop, Factor, Mulop;
 nonterminal Relop, CondFact;
 nonterminal Condition, CondTerm;
@@ -99,7 +105,7 @@ ConstDeclExpressionList ::= (MultipleConstDeclExpressionList) ConstDeclExpressio
 						(SingleConstDeclExpression) ConstDeclExpression
 						;
 			
-ConstDeclExpression ::= (ConstDeclExpression) IDENT:constIdent EQUAL ConstValue:constValue;
+ConstDeclExpression ::= (ConstDeclExpression) IDENT:constIdent EQUALS ConstValue:constValue;
 
 ConstValue ::= (ConstValueNum) NUM
 			   |
@@ -121,7 +127,12 @@ VarIdentList ::= (MultipleVarIdent) VarIdentList COMMA VarIdent
 VarIdent ::= (BasicIdent) IDENT:varIdent
 			 |
 			 (ArrayIdent) IDENT:arrayIdent LSQUARE RSQUARE
-			 ;
+			 |
+			 (VarIdentListError) error:l
+			 {: 
+			 	parser.report_info("Izvrsen oporavak od greske u liniji " + lleft, null);
+			 :}					   
+			 ; 
 
 
 
@@ -133,8 +144,7 @@ MethodDeclList ::= (MultipleMethodDecl) MethodDeclList MethodDecl
 				   (EmptyMethodDeclList) /*epsilon*/
 				   ;
 
-MethodDecl ::= (MethodDecl) MethodReturnType IDENT:methodName LPAREN FormParsList RPAREN VarDeclList LBRACE StatementList RBRACE;
-
+MethodDecl ::= (MethodDecl) MethodReturnType IDENT:methodName LPAREN FormParsList RPAREN MethodVarDeclList LBRACE StatementList RBRACE;
 
 MethodReturnType ::= (BasicReturnType) Type
 					 |
@@ -160,7 +170,10 @@ FormParsDecl ::= (BasicFormParsDecl) Type IDENT
 			     (ArrayFormParsDecl) Type IDENT LBRACE RBRACE
 			     ;
 		
-				 
+MethodVarDeclList ::= (MethodVarDeclListNotEmpty) VarDeclList
+					  |
+					  (MethodVarDeclListEmpty) /*empty*/
+					  ;	 
 
 
 	/*------------------------------- Statements -------------------------------*/
@@ -193,12 +206,20 @@ Matched ::= (DesignatorStmt) DesignatorStatement SEMI
 			;
 			  
 		
-DesignatorStatement ::= (DesignatorStatementAssign) Designator EQUALS Expr
+DesignatorStatement ::= (DesignatorStatementAssign) Designator EQUALS ExprToAssign
 						|
 						(DesignatorStatementInc) Designator INCREMENT
 						|
 						(DesignatorStatementDec) Designator DECREMENT
 						;
+						
+ExprToAssign ::= (ExprToAssignSuccess)  Expr
+		   		 |
+		   		 (ErrorAssign) error:a
+   			     {: 
+			   		parser.report_info("Izvrsen oporavak od greske u liniji " + aleft, null);
+			     :} 
+			     ;
 		
 Designator ::= (Designator) IDENT ExprDesignator;
 

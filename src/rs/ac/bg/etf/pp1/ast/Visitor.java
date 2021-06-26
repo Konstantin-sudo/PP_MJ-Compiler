@@ -1,38 +1,41 @@
 // generated with ast extension for cup
 // version 0.8
-// 25/5/2021 18:34:55
+// 26/5/2021 22:36:38
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public interface Visitor { 
 
-    public void visit(Factor Factor);
-    public void visit(Mulop Mulop);
-    public void visit(FormParsDecl FormParsDecl);
-    public void visit(MethodReturnType MethodReturnType);
-    public void visit(DesignatorStatement DesignatorStatement);
-    public void visit(Declaration Declaration);
-    public void visit(CondFact CondFact);
-    public void visit(Expr Expr);
-    public void visit(FormPars FormPars);
-    public void visit(VarIdent VarIdent);
-    public void visit(ConstValue ConstValue);
-    public void visit(DeclarationList DeclarationList);
     public void visit(Unmatched Unmatched);
-    public void visit(Addop Addop);
-    public void visit(MethodDeclList MethodDeclList);
-    public void visit(ExprPrint ExprPrint);
-    public void visit(Statement Statement);
-    public void visit(Relop Relop);
-    public void visit(FormParsList FormParsList);
-    public void visit(CondTerm CondTerm);
-    public void visit(Condition Condition);
-    public void visit(Term Term);
-    public void visit(ConstDeclExpressionList ConstDeclExpressionList);
-    public void visit(VarIdentList VarIdentList);
-    public void visit(StatementList StatementList);
+    public void visit(DeclarationList DeclarationList);
+    public void visit(Mulop Mulop);
+    public void visit(VarIdent VarIdent);
     public void visit(Matched Matched);
+    public void visit(Relop Relop);
+    public void visit(StatementList StatementList);
+    public void visit(ConstDeclExpressionList ConstDeclExpressionList);
+    public void visit(Addop Addop);
+    public void visit(Factor Factor);
+    public void visit(CondTerm CondTerm);
+    public void visit(VarIdentError VarIdentError);
+    public void visit(Term Term);
+    public void visit(FormParsList FormParsList);
+    public void visit(Condition Condition);
+    public void visit(ConstValue ConstValue);
+    public void visit(ExprPrint ExprPrint);
+    public void visit(ExprToAssign ExprToAssign);
+    public void visit(Expr Expr);
+    public void visit(DesignatorStatement DesignatorStatement);
+    public void visit(MethodReturnType MethodReturnType);
+    public void visit(Statement Statement);
+    public void visit(VarIdentList VarIdentList);
+    public void visit(CondFact CondFact);
+    public void visit(MethodVarDeclList MethodVarDeclList);
+    public void visit(Declaration Declaration);
+    public void visit(MethodDeclList MethodDeclList);
+    public void visit(FormParsDecl FormParsDecl);
+    public void visit(FormPars FormPars);
     public void visit(ExprDesignator ExprDesignator);
     public void visit(CondFactExprWithRelop CondFactExprWithRelop);
     public void visit(CondFactExpr CondFactExpr);
@@ -67,6 +70,8 @@ public interface Visitor {
     public void visit(EmptyExprDesignator EmptyExprDesignator);
     public void visit(ArrayExprDesignator ArrayExprDesignator);
     public void visit(Designator Designator);
+    public void visit(ErrorAssign ErrorAssign);
+    public void visit(ExprToAssignSuccess ExprToAssignSuccess);
     public void visit(DesignatorStatementDec DesignatorStatementDec);
     public void visit(DesignatorStatementInc DesignatorStatementInc);
     public void visit(DesignatorStatementAssign DesignatorStatementAssign);
@@ -81,6 +86,8 @@ public interface Visitor {
     public void visit(MatchedStatement MatchedStatement);
     public void visit(EmptyStatementList EmptyStatementList);
     public void visit(NotEmptyStatementList NotEmptyStatementList);
+    public void visit(MethodVarDeclListEmpty MethodVarDeclListEmpty);
+    public void visit(MethodVarDeclListNotEmpty MethodVarDeclListNotEmpty);
     public void visit(ArrayFormParsDecl ArrayFormParsDecl);
     public void visit(BasicFormParsDecl BasicFormParsDecl);
     public void visit(SingleFormParsDecl SingleFormParsDecl);
@@ -93,6 +100,7 @@ public interface Visitor {
     public void visit(MethodDecl MethodDecl);
     public void visit(EmptyMethodDeclList EmptyMethodDeclList);
     public void visit(MultipleMethodDecl MultipleMethodDecl);
+    public void visit(VarIdentListError VarIdentListError);
     public void visit(ArrayIdent ArrayIdent);
     public void visit(BasicIdent BasicIdent);
     public void visit(SingleVarIdent SingleVarIdent);

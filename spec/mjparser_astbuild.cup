@@ -32,6 +32,12 @@ parser code {:
         log.error(msg.toString());
     }
 
+	public void report_info(String message, Object info) {
+    	StringBuilder msg = new StringBuilder(message); 
+    	if (info instanceof Symbol)
+            msg.append (" na liniji ").append(((Symbol)info).left);
+        log.info(msg.toString());
+    }
 
 :}
 
@@ -45,7 +51,7 @@ scan with {:
 
 
 terminal PROG, LBRACE, RBRACE;
-terminal CONST, SEMI, COMMA, EQUAL;
+terminal CONST, SEMI, COMMA, EQUALS;
 terminal Integer NUM;
 terminal Character CHAR;
 terminal String BOOL;
@@ -54,7 +60,7 @@ terminal LSQUARE, RSQUARE;
 terminal LPAREN, RPAREN;
 terminal VOID;
 
-terminal READ, PRINT, IF, ELSE, INCREMENT, DECREMENT, EQUALS;
+terminal READ, PRINT, IF, ELSE, INCREMENT, DECREMENT;
 terminal MINUS, NEW;
 terminal PLUS, MUL, DIV, MOD, EQUAL_TO, NOT_EQUAL_TO, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
 terminal OR, AND;
@@ -72,9 +78,11 @@ nonterminal ConstDeclExpression ConstDeclExpression;
 nonterminal ConstValue ConstValue;
 nonterminal VarIdentList VarIdentList;
 nonterminal VarIdent VarIdent;
+nonterminal VarIdentError VarIdentError;
 nonterminal MethodDecl MethodDecl;
 nonterminal MethodReturnType MethodReturnType;
 nonterminal FormParsList FormParsList;
+nonterminal MethodVarDeclList MethodVarDeclList;
 nonterminal StatementList StatementList;
 nonterminal FormPars FormPars;
 nonterminal FormParsDecl FormParsDecl;
@@ -83,6 +91,7 @@ nonterminal Statement Statement;
 nonterminal Matched Matched;
 nonterminal Unmatched Unmatched;
 nonterminal DesignatorStatement DesignatorStatement;
+nonterminal ExprToAssign ExprToAssign;
 nonterminal Designator Designator;
 nonterminal ExprPrint ExprPrint;
 nonterminal Expr Expr;
@@ -123,7 +132,7 @@ ConstDeclExpressionList ::= (MultipleConstDeclExpressionList) ConstDeclExpressio
 						(SingleConstDeclExpression) ConstDeclExpression:C1 {: RESULT=new SingleConstDeclExpression(C1); RESULT.setLine(C1left); :}
 						;
 			
-ConstDeclExpression ::= (ConstDeclExpression) IDENT:constIdent EQUAL ConstValue:constValue {: RESULT=new ConstDeclExpression(constIdent, constValue); RESULT.setLine(constIdentleft); :};
+ConstDeclExpression ::= (ConstDeclExpression) IDENT:constIdent EQUALS ConstValue:constValue {: RESULT=new ConstDeclExpression(constIdent, constValue); RESULT.setLine(constIdentleft); :};
 
 ConstValue ::= (ConstValueNum) NUM:N1 {: RESULT=new ConstValueNum(N1); RESULT.setLine(N1left); :}
 			   |
@@ -145,7 +154,12 @@ VarIdentList ::= (MultipleVarIdent) VarIdentList:V1 COMMA VarIdent:V2 {: RESULT=
 VarIdent ::= (BasicIdent) IDENT:varIdent {: RESULT=new BasicIdent(varIdent); RESULT.setLine(varIdentleft); :}
 			 |
 			 (ArrayIdent) IDENT:arrayIdent LSQUARE RSQUARE {: RESULT=new ArrayIdent(arrayIdent); RESULT.setLine(arrayIdentleft); :}
-			 ;
+			 |
+			 (VarIdentListError) error:l
+			 {: 
+			 	parser.report_info("Izvrsen oporavak od greske u liniji " + lleft, null);
+			 :} {: RESULT=new VarIdentListError(); :}					   
+			 ; 
 
 
 
@@ -157,8 +171,7 @@ MethodDeclList ::= (MultipleMethodDecl) MethodDeclList:M1 MethodDecl:M2 {: RESUL
 				   (EmptyMethodDeclList) {: RESULT=new EmptyMethodDeclList(); :} /*epsilon*/
 				   ;
 
-MethodDecl ::= (MethodDecl) MethodReturnType:M1 IDENT:methodName LPAREN FormParsList:F2 RPAREN VarDeclList:V3 LBRACE StatementList:S4 RBRACE {: RESULT=new MethodDecl(M1, methodName, F2, V3, S4); RESULT.setLine(M1left); :};
-
+MethodDecl ::= (MethodDecl) MethodReturnType:M1 IDENT:methodName LPAREN FormParsList:F2 RPAREN MethodVarDeclList:M3 LBRACE StatementList:S4 RBRACE {: RESULT=new MethodDecl(M1, methodName, F2, M3, S4); RESULT.setLine(M1left); :};
 
 MethodReturnType ::= (BasicReturnType) Type:T1 {: RESULT=new BasicReturnType(T1); RESULT.setLine(T1left); :}
 					 |
@@ -184,7 +197,10 @@ FormParsDecl ::= (BasicFormParsDecl) Type:T1 IDENT:I2 {: RESULT=new BasicFormPar
 			     (ArrayFormParsDecl) Type:T1 IDENT:I2 LBRACE RBRACE {: RESULT=new ArrayFormParsDecl(T1, I2); RESULT.setLine(T1left); :}
 			     ;
 		
-				 
+MethodVarDeclList ::= (MethodVarDeclListNotEmpty) VarDeclList:V1 {: RESULT=new MethodVarDeclListNotEmpty(V1); RESULT.setLine(V1left); :}
+					  |
+					  (MethodVarDeclListEmpty) {: RESULT=new MethodVarDeclListEmpty(); :} /*empty*/
+					  ;	 
 
 
 	/*------------------------------- Statements -------------------------------*/
@@ -217,12 +233,20 @@ Matched ::= (DesignatorStmt) DesignatorStatement:D1 SEMI {: RESULT=new Designato
 			;
 			  
 		
-DesignatorStatement ::= (DesignatorStatementAssign) Designator:D1 EQUALS Expr:E2 {: RESULT=new DesignatorStatementAssign(D1, E2); RESULT.setLine(D1left); :}
+DesignatorStatement ::= (DesignatorStatementAssign) Designator:D1 EQUALS ExprToAssign:E2 {: RESULT=new DesignatorStatementAssign(D1, E2); RESULT.setLine(D1left); :}
 						|
 						(DesignatorStatementInc) Designator:D1 INCREMENT {: RESULT=new DesignatorStatementInc(D1); RESULT.setLine(D1left); :}
 						|
 						(DesignatorStatementDec) Designator:D1 DECREMENT {: RESULT=new DesignatorStatementDec(D1); RESULT.setLine(D1left); :}
 						;
+						
+ExprToAssign ::= (ExprToAssignSuccess)  Expr:E1 {: RESULT=new ExprToAssignSuccess(E1); RESULT.setLine(E1left); :}
+		   		 |
+		   		 (ErrorAssign) error:a
+   			     {: 
+			   		parser.report_info("Izvrsen oporavak od greske u liniji " + aleft, null);
+			     :} {: RESULT=new ErrorAssign(); :} 
+			     ;
 		
 Designator ::= (Designator) IDENT:I1 ExprDesignator:E2 {: RESULT=new Designator(I1, E2); RESULT.setLine(I1left); :};
 

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 25/5/2021 18:34:55
+// 26/5/2021 22:36:38
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,13 +8,13 @@ package rs.ac.bg.etf.pp1.ast;
 public class DesignatorStatementAssign extends DesignatorStatement {
 
     private Designator Designator;
-    private Expr Expr;
+    private ExprToAssign ExprToAssign;
 
-    public DesignatorStatementAssign (Designator Designator, Expr Expr) {
+    public DesignatorStatementAssign (Designator Designator, ExprToAssign ExprToAssign) {
         this.Designator=Designator;
         if(Designator!=null) Designator.setParent(this);
-        this.Expr=Expr;
-        if(Expr!=null) Expr.setParent(this);
+        this.ExprToAssign=ExprToAssign;
+        if(ExprToAssign!=null) ExprToAssign.setParent(this);
     }
 
     public Designator getDesignator() {
@@ -25,12 +25,12 @@ public class DesignatorStatementAssign extends DesignatorStatement {
         this.Designator=Designator;
     }
 
-    public Expr getExpr() {
-        return Expr;
+    public ExprToAssign getExprToAssign() {
+        return ExprToAssign;
     }
 
-    public void setExpr(Expr Expr) {
-        this.Expr=Expr;
+    public void setExprToAssign(ExprToAssign ExprToAssign) {
+        this.ExprToAssign=ExprToAssign;
     }
 
     public void accept(Visitor visitor) {
@@ -39,18 +39,18 @@ public class DesignatorStatementAssign extends DesignatorStatement {
 
     public void childrenAccept(Visitor visitor) {
         if(Designator!=null) Designator.accept(visitor);
-        if(Expr!=null) Expr.accept(visitor);
+        if(ExprToAssign!=null) ExprToAssign.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(Designator!=null) Designator.traverseTopDown(visitor);
-        if(Expr!=null) Expr.traverseTopDown(visitor);
+        if(ExprToAssign!=null) ExprToAssign.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(Designator!=null) Designator.traverseBottomUp(visitor);
-        if(Expr!=null) Expr.traverseBottomUp(visitor);
+        if(ExprToAssign!=null) ExprToAssign.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -65,8 +65,8 @@ public class DesignatorStatementAssign extends DesignatorStatement {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Expr!=null)
-            buffer.append(Expr.toString("  "+tab));
+        if(ExprToAssign!=null)
+            buffer.append(ExprToAssign.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

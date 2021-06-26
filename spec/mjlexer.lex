@@ -89,17 +89,18 @@ import java_cup.runtime.Symbol;
 "]" 		{ return new_symbol(sym.RSQUARE, yytext()); }
 
 
+[0-9]+  { return new_symbol(sym.NUM, new Integer (yytext())); }
+
+"'".?"'" { return new_symbol(sym.CHAR, Character.valueOf(yytext().charAt(1))); }
+
 "true"	 	{ return new_symbol(sym.BOOL, yytext()); }
 "false"	 	{ return new_symbol(sym.BOOL, yytext()); }
+
+([a-z]|[A-Z])[a-z|A-Z|0-9|_]* 	{return new_symbol (sym.IDENT, yytext()); }
 
 "//" { yybegin(COMMENT); }
 <COMMENT> . { yybegin(COMMENT); }
 <COMMENT> "\r\n" { yybegin(YYINITIAL); }
-
-[0-9]+  { return new_symbol(sym.NUM, new Integer (yytext())); }
-
-([a-z]|[A-Z])[a-z|A-Z|0-9|_]* 	{return new_symbol (sym.IDENT, yytext()); }
-
 
 . { System.err.println("Leksicka greska (" + yytext() + ") u liniji: " + (yyline + 1) + ", u koloni: " + (yycolumn + 1)); }
 

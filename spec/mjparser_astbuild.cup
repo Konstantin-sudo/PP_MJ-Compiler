@@ -173,10 +173,7 @@ MethodDeclList ::= (MultipleMethodDecl) MethodDeclList:M1 MethodDecl:M2 {: RESUL
 
 MethodDecl ::= (MethodDecl) MethodReturnType:M1 IDENT:methodName LPAREN FormParsList:F2 RPAREN MethodVarDeclList:M3 LBRACE StatementList:S4 RBRACE {: RESULT=new MethodDecl(M1, methodName, F2, M3, S4); RESULT.setLine(M1left); :};
 
-MethodReturnType ::= (BasicReturnType) Type:T1 {: RESULT=new BasicReturnType(T1); RESULT.setLine(T1left); :}
-					 |
-					 (VoidReturnType) VOID {: RESULT=new VoidReturnType(); :}
-					 ;
+MethodReturnType ::= (VoidReturnType) VOID {: RESULT=new VoidReturnType(); :};
 				
 Type ::= (Type) IDENT:I1 {: RESULT=new Type(I1); RESULT.setLine(I1left); :};
 

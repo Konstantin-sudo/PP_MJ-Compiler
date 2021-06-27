@@ -146,10 +146,7 @@ MethodDeclList ::= (MultipleMethodDecl) MethodDeclList MethodDecl
 
 MethodDecl ::= (MethodDecl) MethodReturnType IDENT:methodName LPAREN FormParsList RPAREN MethodVarDeclList LBRACE StatementList RBRACE;
 
-MethodReturnType ::= (BasicReturnType) Type
-					 |
-					 (VoidReturnType) VOID
-					 ;
+MethodReturnType ::= (VoidReturnType) VOID;
 				
 Type ::= (Type) IDENT;
 

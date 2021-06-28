@@ -76,10 +76,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 				++localVarDeclNumber;
 			}
 
-			report_info(
-					"Pronadjena deklaracija nove varijable sa imenom: '" + varName + "' tipa: '" + currentlyReadType
-							+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + varNode + "]. Pronadjeno",
-					basicVarName);
+			report_info("Pronadjena nova " + (varNode.getLevel() == 0 ? "globalna" : "lokalna") + " deklaracija varijable sa imenom: '" + varName + "'", basicVarName);
 		} else {
 			report_error("Greska: Varijabla se ne moze deklarisati - simbol sa imenom: '" + varName
 					+ "' vec postoji u tabeli simbola. Greska", basicVarName);
@@ -98,10 +95,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			} else {
 				++localVarDeclNumber;
 			}
-			report_info(
-					"Pronadjena deklaracija novog niza sa imenom: '" + varName + "' tipa: '" + currentlyReadType
-							+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + varNode + "]. Pronadjeno",
-					arrayVarName);
+			report_info("Pronadjena nova " + (varNode.getLevel() == 0 ? "globalna" : "lokalna") + " deklaracija niza sa imenom: '" + varName + "'", arrayVarName);
 		} else {
 			report_error("Greska: Niz se ne moze deklarisati - simbol sa imenom: '" + varName
 					+ "' vec postoji u tabeli simbola. Greska", arrayVarName);
@@ -141,9 +135,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 				++constDeclNumber;
 
-				report_info(
-						"Pronadjena deklaracija nove konstante sa imenom: '" + constName + "' tipa: '" + constType
-								+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + newConstObj + "]. Pronadjeno",
+				report_info("Pronadjena deklaracija nove konstante sa imenom: '" + constName + "'",
 						constDeclExpression);
 			} else {
 				report_error(

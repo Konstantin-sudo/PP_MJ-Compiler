@@ -73,16 +73,17 @@ nonterminal VarIdentList, VarIdent, VarIdentError;
 nonterminal MethodDecl, FormParsList, MethodVarDeclList, StatementList;
 nonterminal FormPars, FormParsDecl;
 
-nonterminal Statement, Matched, Unmatched, DesignatorStatement, ExprToAssign, Designator, ExprPrint, Expr, ExprDesignator;
-nonterminal Term, Addop, Factor, Mulop;
+nonterminal Statement, Matched, Unmatched, DesignatorStatement, ExprPrint;
+nonterminal Addop, Mulop;
 nonterminal Relop, CondFact;
 nonterminal Condition, CondTerm;
 
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program;
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ConstValue;
-nonterminal rs.etf.pp1.symboltable.concepts.Obj MethodName;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Type;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj MethodName, Designator;
+
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Expr, Factor, ExprToAssign;
 
 
 
@@ -226,16 +227,14 @@ ExprToAssign ::= (ExprToAssignSuccess)  Expr
 			     :} 
 			     ;
 		
-Designator ::= (Designator) IDENT ExprDesignator;
+Designator ::= (DesignatorBasic) IDENT:designatorName
+			   |
+			   (DesignatorArray) IDENT:designatorName LSQUARE Expr RSQUARE
+			   ;
 
 
 	/*------------------------------- Expressions -------------------------------*/
 	
-ExprDesignator ::= (ArrayExprDesignator) LSQUARE Expr RSQUARE
-				   |
-				   (EmptyExprDesignator) /*epsilon*/
-				   ;
-				   
 ExprPrint ::= (SingleExprPrint) Expr 
 			  |
 			  (ExprPrintAndNumConst) Expr COMMA NUM
@@ -255,11 +254,7 @@ Term ::= (SingleTermFactor) Factor
 
 Factor ::= (FactorDesignator) Designator
 		   |
-		   (FactorNumConst) NUM
-		   |
-		   (FactorCharConst) CHAR
-		   |
-		   (FactorBoolConst) BOOL
+		   (FactorConst) ConstValue
 		   |
 		   (FactorExpr) LPAREN Expr RPAREN
 		   |

@@ -53,6 +53,7 @@ public class Compiler {
 			log.info(" Globalno deklarisanih promenljivih ima = " + semanticAnalyzer.globalVarDeclNumber);
 			log.info(" Lokalno deklarisanih promenljivih ima = " + semanticAnalyzer.localVarDeclNumber);
 			log.info(" Deklarisanih konstanti ima = " + semanticAnalyzer.constDeclNumber);
+			log.info(" Deklarisanih metoda main ima = " + semanticAnalyzer.mainFunctionCnt);
 
 		} finally {
 			if (br != null)

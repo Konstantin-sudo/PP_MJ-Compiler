@@ -47,6 +47,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public void visit(Program program) {
 		MySymTab.chainLocalSymbols(program.getProgName().obj);
 		MySymTab.closeScope();
+		if(mainFunctionCnt != 1) {
+			report_error("Greska: Metoda 'main' mora biti deklarisana tacno jednom. Broj deklarisanih metoda main je: "
+					+ mainFunctionCnt + ". Greska", program);
+		}
 	}
 
 	// =============================== Type ===============================

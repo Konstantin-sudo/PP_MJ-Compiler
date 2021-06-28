@@ -32,7 +32,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		log.info(msg.toString());
 	}
 
-	// ===============================================================
+	// =============================== Program ===============================
 
 	public void visit(ProgName progName) {
 		progName.obj = MySymTab.insert(Obj.Prog, progName.getProgName(), MySymTab.noType);
@@ -44,38 +44,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		MySymTab.closeScope();
 	}
 
-	public void visit(BasicVarName basicVarName) {
-		String varName = basicVarName.getVarName();
-
-		if (MySymTab.currentScope().findSymbol(varName) == null) {
-			Obj varNode = MySymTab.insert(Obj.Var, varName, currentlyReadType);
-			globalVarDeclNumber++;
-			report_info(
-					"Pronadjena deklaracija nove varijable sa imenom: '" + varName + "' tipa: '" + currentlyReadType
-							+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + varNode + "]. Pronadjeno",
-					basicVarName);
-		} else {
-			report_error("Greska: Simbol sa imenom: '" + varName + "' se vec postoji u tabeli simbola. Greska",
-					basicVarName);
-		}
-	}
-
-	public void visit(ArrayVarName arrayVarName) {
-		String varName = arrayVarName.getVarArrayName();
-
-		if (MySymTab.currentScope().findSymbol(varName) == null) {
-			Obj varNode = MySymTab.insert(Obj.Var, varName, currentlyReadType);
-			globalVarDeclNumber++;
-			report_info(
-					"Pronadjena deklaracija novog niza sa imenom: '" + varName + "' tipa: '" + currentlyReadType
-							+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + varNode + "]. Pronadjeno",
-					arrayVarName);
-		} else {
-			report_error("Greska: Simbol sa imenom: '" + varName + "' se vec postoji u tabeli simbola. Greska",
-					arrayVarName);
-		}
-	}
-
+	// =============================== Type ===============================
 	public void visit(Type type) {
 		Obj typeNode = MySymTab.find(type.getTypeName());
 		if (typeNode == MySymTab.noObj) {
@@ -90,6 +59,103 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			}
 		}
 		currentlyReadType = type.struct;
+	}
+
+	// =============================== Vars ===============================
+
+	public void visit(BasicVarName basicVarName) {
+		String varName = basicVarName.getVarName();
+
+		if (MySymTab.currentScope().findSymbol(varName) == null) {
+
+			Obj varNode = MySymTab.insert(Obj.Var, varName, currentlyReadType);
+
+			if (varNode.getLevel() == 0) {
+				++globalVarDeclNumber;
+			} else {
+				++localVarDeclNumber;
+			}
+
+			report_info(
+					"Pronadjena deklaracija nove varijable sa imenom: '" + varName + "' tipa: '" + currentlyReadType
+							+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + varNode + "]. Pronadjeno",
+					basicVarName);
+		} else {
+			report_error("Greska: Varijabla se ne moze deklarisati - simbol sa imenom: '" + varName
+					+ "' vec postoji u tabeli simbola. Greska", basicVarName);
+		}
+	}
+
+	public void visit(ArrayVarName arrayVarName) {
+		String varName = arrayVarName.getVarArrayName();
+
+		if (MySymTab.currentScope().findSymbol(varName) == null) {
+
+			Obj varNode = MySymTab.insert(Obj.Var, varName, currentlyReadType);
+
+			if (varNode.getLevel() == 0) {
+				++globalVarDeclNumber;
+			} else {
+				++localVarDeclNumber;
+			}
+			report_info(
+					"Pronadjena deklaracija novog niza sa imenom: '" + varName + "' tipa: '" + currentlyReadType
+							+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + varNode + "]. Pronadjeno",
+					arrayVarName);
+		} else {
+			report_error("Greska: Niz se ne moze deklarisati - simbol sa imenom: '" + varName
+					+ "' vec postoji u tabeli simbola. Greska", arrayVarName);
+		}
+	}
+
+	// =============================== Const ===============================
+
+	public void visit(ConstValueNum constValueNum) {
+		constValueNum.obj = new Obj(Obj.Con, "constValueNum", MySymTab.intType,
+				constValueNum.getConstValue().intValue(), 0);
+	}
+
+	public void visit(ConstValueChar constValueChar) {
+		constValueChar.obj = new Obj(Obj.Con, "constValueChar", MySymTab.charType,
+				constValueChar.getConstValue().charValue(), 0);
+	}
+
+	public void visit(ConstValueBool constValueBool) {
+		int constValue = constValueBool.getConstValue() == "true" ? 1 : 0;
+		constValueBool.obj = new Obj(Obj.Con, "constValueBool", MySymTab.boolType, constValue, 0);
+	}
+
+	public void visit(ConstDeclExpression constDeclExpression) {
+		String constName = constDeclExpression.getConstName();
+
+		if (MySymTab.find(constName) == MySymTab.noObj) {
+
+			Struct constType = currentlyReadType;
+			Struct constValueType = constDeclExpression.getConstValue().obj.getType();
+
+			if (constType == constValueType) {
+				int constValue = constDeclExpression.getConstValue().obj.getAdr();
+
+				Obj newConstObj = MySymTab.insert(Obj.Con, constName, constType);
+				newConstObj.setAdr(constValue);
+
+				++constDeclNumber;
+
+				report_info(
+						"Pronadjena deklaracija nove konstante sa imenom: '" + constName + "' tipa: '" + constType
+								+ "'. Odgovarajuci objektni cvor iz tabele simbola: [" + newConstObj + "]. Pronadjeno",
+						constDeclExpression);
+			} else {
+				report_error(
+						"Greska: Vrednost: " + constDeclExpression.getConstValue().obj.getAdr()
+								+ " koja se dodeljuje konstanti: '" + constName + "'  je pogresnog tipa. Greska",
+						constDeclExpression);
+			}
+
+		} else {
+			report_error("Greska: Konstanta se ne moze deklarisati - simbol sa imenom: '" + constName
+					+ "' vec postoji u tabeli simbola. Greska", constDeclExpression);
+		}
 	}
 
 }

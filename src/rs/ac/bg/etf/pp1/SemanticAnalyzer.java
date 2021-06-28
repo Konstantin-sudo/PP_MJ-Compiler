@@ -13,10 +13,15 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 	Struct currentlyReadType = MySymTab.noType;
 
+	int mainFunctionCnt = 0;
+	int formParsCntInCurrMethod = 0;
+	
+	boolean errorDetected = false;
+	
 	Logger log = Logger.getLogger(getClass());
-
+	
 	public void report_error(String message, SyntaxNode info) {
-//		errorDetected = true;
+		errorDetected = true;
 		StringBuilder msg = new StringBuilder(message);
 		int line = (info == null) ? 0 : info.getLine();
 		if (line != 0)
@@ -76,7 +81,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 				++localVarDeclNumber;
 			}
 
-			report_info("Pronadjena nova " + (varNode.getLevel() == 0 ? "globalna" : "lokalna") + " deklaracija varijable sa imenom: '" + varName + "'", basicVarName);
+			report_info("Pronadjena nova " + (varNode.getLevel() == 0 ? "globalna" : "lokalna")
+					+ " deklaracija varijable sa imenom: '" + varName + "'", basicVarName);
 		} else {
 			report_error("Greska: Varijabla se ne moze deklarisati - simbol sa imenom: '" + varName
 					+ "' vec postoji u tabeli simbola. Greska", basicVarName);
@@ -95,7 +101,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			} else {
 				++localVarDeclNumber;
 			}
-			report_info("Pronadjena nova " + (varNode.getLevel() == 0 ? "globalna" : "lokalna") + " deklaracija niza sa imenom: '" + varName + "'", arrayVarName);
+			report_info("Pronadjena nova " + (varNode.getLevel() == 0 ? "globalna" : "lokalna")
+					+ " deklaracija niza sa imenom: '" + varName + "'", arrayVarName);
 		} else {
 			report_error("Greska: Niz se ne moze deklarisati - simbol sa imenom: '" + varName
 					+ "' vec postoji u tabeli simbola. Greska", arrayVarName);
@@ -150,4 +157,136 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		}
 	}
 
+	// =============================== MehodDecl ===============================
+
+	public void visit(MethodName methodName) {
+		
+		if (MySymTab.find(methodName.getMethodName()) == MySymTab.noObj) {
+			
+			methodName.obj = MySymTab.insert(Obj.Meth, methodName.getMethodName(), MySymTab.noType);
+			
+			MySymTab.openScope();
+			
+			
+		} else {
+			report_error("Greska: Metoda se ne moze deklarisati - simbol sa imenom: '" + methodName.getMethodName()
+					+ "' vec postoji u tabeli simbola. Greska", methodName);
+		}
+	}
+	
+	public void visit(MethodDecl methodDecl) {
+		
+		if(methodDecl.getMethodName().getMethodName().equals("main")) {
+		
+			++mainFunctionCnt;
+			
+			if(formParsCntInCurrMethod != 0) {
+				report_error("Greska: Metoda main ne sme imati argumente! Greska", methodDecl);
+				return;
+			}
+		}
+		
+		formParsCntInCurrMethod = 0;
+		
+		MySymTab.chainLocalSymbols(methodDecl.getMethodName().obj);
+		MySymTab.closeScope();
+	}
+	
+	public void visit(BasicFormParsDecl basicFormParsDecl) {
+		
+		String formParsName = basicFormParsDecl.getFormParName();
+		
+		if(MySymTab.find(formParsName) == MySymTab.noObj) {
+			
+			MySymTab.insert(Obj.Var, formParsName, currentlyReadType);
+			
+			++formParsCntInCurrMethod;
+			
+		}else {
+			report_error("Greska: Formalni parametar se ne moze deklarisati - simbol sa imenom: '" + formParsName
+					+ "' vec postoji u tabeli simbola. Greska", basicFormParsDecl);
+		}
+	}
+	
+	public void visit(ArrayFormParsDecl arrayFormParsDecl) {
+		
+		String formParsName = arrayFormParsDecl.getFormParArrayName();
+		
+		if(MySymTab.find(formParsName) == MySymTab.noObj) {
+			
+			MySymTab.insert(Obj.Var, formParsName, currentlyReadType);
+			
+			++formParsCntInCurrMethod;
+			
+		}else {
+			report_error("Greska: Formalni parametar niz se ne moze deklarisati - simbol sa imenom: '" + formParsName
+					+ "' vec postoji u tabeli simbola. Greska", arrayFormParsDecl);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

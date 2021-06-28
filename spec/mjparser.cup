@@ -70,7 +70,7 @@ nonterminal DeclarationList, MethodDeclList;
 nonterminal Declaration, ConstDeclList, VarDeclList;
 nonterminal ConstDeclExpressionList, ConstDeclExpression;
 nonterminal VarIdentList, VarIdent, VarIdentError;
-nonterminal MethodDecl, MethodReturnType, FormParsList, MethodVarDeclList, StatementList;
+nonterminal MethodDecl, FormParsList, MethodVarDeclList, StatementList;
 nonterminal FormPars, FormParsDecl;
 
 nonterminal Statement, Matched, Unmatched, DesignatorStatement, ExprToAssign, Designator, ExprPrint, Expr, ExprDesignator;
@@ -81,7 +81,9 @@ nonterminal Condition, CondTerm;
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program;
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ConstValue;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj MethodName;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type;
+
 
 
 
@@ -150,10 +152,10 @@ MethodDeclList ::= (MultipleMethodDecl) MethodDeclList MethodDecl
 				   (EmptyMethodDeclList) /*epsilon*/
 				   ;
 
-MethodDecl ::= (MethodDecl) MethodReturnType IDENT:methodName LPAREN FormParsList RPAREN MethodVarDeclList LBRACE StatementList RBRACE;
+MethodDecl ::= (MethodDecl) VOID MethodName LPAREN FormParsList RPAREN MethodVarDeclList LBRACE StatementList RBRACE;
 
-MethodReturnType ::= (VoidReturnType) VOID;
-				
+MethodName ::= (MethodName) IDENT:methodName;
+
 Type ::= (Type) IDENT:typeName;
 
 
@@ -168,16 +170,16 @@ FormPars ::= (MultipleFormParsDecl) FormPars COMMA FormParsDecl
 			 ;
 			 
 /* varDecl instead FormParsDecl ? */
-FormParsDecl ::= (BasicFormParsDecl) Type IDENT
+FormParsDecl ::= (BasicFormParsDecl) Type IDENT:formParName
 			     |
-			     (ArrayFormParsDecl) Type IDENT LBRACE RBRACE
+			     (ArrayFormParsDecl) Type IDENT:formParArrayName LBRACE RBRACE
 			     ;
-		
-MethodVarDeclList ::= (MethodVarDeclListNotEmpty) VarDeclList
+	
+MethodVarDeclList ::= (NotEmptyMethodVarDeclList) MethodVarDeclList VarDeclList
 					  |
-					  (MethodVarDeclListEmpty) /*empty*/
-					  ;	 
-
+					  (EmptyMethodVarDeclList) /*epsilon*/
+					  ;
+		
 
 	/*------------------------------- Statements -------------------------------*/
 		

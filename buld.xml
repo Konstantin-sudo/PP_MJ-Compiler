@@ -9,6 +9,7 @@
 				<exclude name="Yylex.java" />
 				<exclude name="RuleVisitor.java" />
 				<exclude name="MySymTab.java" />
+				<exclude name="SemanticAnalyzer" />
 			</fileset>
 		</delete>
 		<delete>

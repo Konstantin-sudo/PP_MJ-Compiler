@@ -66,9 +66,9 @@ terminal PLUS, MUL, DIV, MOD, EQUAL_TO, NOT_EQUAL_TO, GREATER, GREATER_EQUAL, LE
 terminal OR, AND;
 
 
-nonterminal Program, DeclarationList, MethodDeclList;
+nonterminal DeclarationList, MethodDeclList;
 nonterminal Declaration, ConstDeclList, VarDeclList;
-nonterminal Type, ConstDeclExpressionList, ConstDeclExpression, ConstValue;
+nonterminal ConstDeclExpressionList, ConstDeclExpression;
 nonterminal VarIdentList, VarIdent, VarIdentError;
 nonterminal MethodDecl, MethodReturnType, FormParsList, MethodVarDeclList, StatementList;
 nonterminal FormPars, FormParsDecl;
@@ -79,9 +79,15 @@ nonterminal Relop, CondFact;
 nonterminal Condition, CondTerm;
 
 
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ConstValue;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type;
 
-Program ::= (Program) PROG IDENT:programName DeclarationList LBRACE MethodDeclList RBRACE;
 
+
+Program ::= (Program) PROG ProgName:p DeclarationList LBRACE MethodDeclList RBRACE;
+
+ProgName ::= (ProgName) IDENT:progName;
 
 
 /*------------------------------- Declarations -------------------------------*/	
@@ -98,35 +104,35 @@ Declaration ::= (ConstDeclarations) ConstDeclList
 
 	/*------------------------------- Constant declaration -------------------------------*/				
 
-ConstDeclList ::= (ConstDeclList) CONST Type:constType ConstDeclExpressionList SEMI;
+ConstDeclList ::= (ConstDeclList) CONST Type ConstDeclExpressionList SEMI;
 
 ConstDeclExpressionList ::= (MultipleConstDeclExpressionList) ConstDeclExpressionList COMMA ConstDeclExpression
 						|
 						(SingleConstDeclExpression) ConstDeclExpression
 						;
 			
-ConstDeclExpression ::= (ConstDeclExpression) IDENT:constIdent EQUALS ConstValue:constValue;
+ConstDeclExpression ::= (ConstDeclExpression) IDENT:constName EQUALS ConstValue:constValue;
 
-ConstValue ::= (ConstValueNum) NUM
+ConstValue ::= (ConstValueNum) NUM:constValue
 			   |
-			   (ConstValueChar) CHAR 
+			   (ConstValueChar) CHAR:constValue
 			   |
-			   (ConstValueBool) BOOL
+			   (ConstValueBool) BOOL:constValue
 			   ;
 
 
 	/*------------------------------- Var declaration -------------------------------*/	
 
-VarDeclList ::= (VarDeclList) Type:varType VarIdentList SEMI;
+VarDeclList ::= (VarDeclList) Type VarIdentList SEMI;
 
 VarIdentList ::= (MultipleVarIdent) VarIdentList COMMA VarIdent
 				 |
 				 (SingleVarIdent) VarIdent 
 				 ;
 			
-VarIdent ::= (BasicIdent) IDENT:varIdent
+VarIdent ::= (BasicVarName) IDENT:varName
 			 |
-			 (ArrayIdent) IDENT:arrayIdent LSQUARE RSQUARE
+			 (ArrayVarName) IDENT:varArrayName LSQUARE RSQUARE
 			 |
 			 (VarIdentListError) error:l
 			 {: 
@@ -148,7 +154,7 @@ MethodDecl ::= (MethodDecl) MethodReturnType IDENT:methodName LPAREN FormParsLis
 
 MethodReturnType ::= (VoidReturnType) VOID;
 				
-Type ::= (Type) IDENT;
+Type ::= (Type) IDENT:typeName;
 
 
 FormParsList ::= (NotEmptyFormParsList) FormPars		 

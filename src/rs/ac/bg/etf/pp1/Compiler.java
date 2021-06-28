@@ -47,7 +47,6 @@ public class Compiler {
 			SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
 			prog.traverseBottomUp(semanticAnalyzer); 
 			
-			log.info("=================================== TABLA SIMBOLA ===================================");
 			MySymTab.dump();
 			
 			// ispis prepoznatih programskih konstrukcija

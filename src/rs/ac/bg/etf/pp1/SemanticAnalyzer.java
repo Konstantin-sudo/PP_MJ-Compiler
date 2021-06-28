@@ -98,7 +98,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 		if (MySymTab.currentScope().findSymbol(varName) == null) {
 
-			Obj varNode = MySymTab.insert(Obj.Var, varName, currentlyReadType);
+			Obj varNode = MySymTab.insert(Obj.Var, varName, new Struct(Struct.Array, currentlyReadType));
 
 			if (varNode.getLevel() == 0) {
 				++globalVarDeclNumber;
@@ -200,7 +200,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		
 		String formParsName = basicFormParsDecl.getFormParName();
 		
-		if(MySymTab.find(formParsName) == MySymTab.noObj) {
+		if(MySymTab.currentScope().findSymbol(formParsName) == MySymTab.noObj) {
 			
 			MySymTab.insert(Obj.Var, formParsName, currentlyReadType);
 			
@@ -216,9 +216,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		
 		String formParsName = arrayFormParsDecl.getFormParArrayName();
 		
-		if(MySymTab.find(formParsName) == MySymTab.noObj) {
+		if(MySymTab.currentScope().findSymbol(formParsName) == MySymTab.noObj) {
 			
-			MySymTab.insert(Obj.Var, formParsName, currentlyReadType);
+			MySymTab.insert(Obj.Var, formParsName, new Struct(Struct.Array, currentlyReadType));
 			
 			++formParsCntInCurrMethod;
 			

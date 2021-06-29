@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 27/5/2021 17:2:4
+// 29/5/2021 23:17:27
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class VoidReturnType extends MethodReturnType {
+public class EmptyMethodVarDeclList extends MethodVarDeclList {
 
-    public VoidReturnType () {
+    public EmptyMethodVarDeclList () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class VoidReturnType extends MethodReturnType {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("VoidReturnType(\n");
+        buffer.append("EmptyMethodVarDeclList(\n");
 
         buffer.append(tab);
-        buffer.append(") [VoidReturnType]");
+        buffer.append(") [EmptyMethodVarDeclList]");
         return buffer.toString();
     }
 }

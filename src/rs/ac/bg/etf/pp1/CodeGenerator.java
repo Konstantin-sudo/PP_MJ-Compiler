@@ -1,5 +1,7 @@
 package rs.ac.bg.etf.pp1;
 
+import java.util.ArrayList;
+
 import rs.ac.bg.etf.pp1.CounterVisitor.FormParamCounter;
 import rs.ac.bg.etf.pp1.CounterVisitor.VarCounter;
 import rs.ac.bg.etf.pp1.ast.*;
@@ -8,6 +10,11 @@ import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
 
 public class CodeGenerator extends VisitorAdaptor {
+
+	private int currentRelop = 0;
+	public static ArrayList<Integer> currentCondFalse = new ArrayList<Integer>();
+	public static ArrayList<Integer> currentCondTrue = new ArrayList<Integer>();
+	public static ArrayList<Integer> endOfElse = new ArrayList<Integer>();
 
 	private int mainPc;
 
@@ -41,6 +48,9 @@ public class CodeGenerator extends VisitorAdaptor {
 		Code.put(Code.exit);
 		Code.put(Code.return_);
 	}
+
+	// ================================= statements
+	// ================================================
 
 	public void visit(SingleExprPrint singleExprPrint) {
 		int exprKind = singleExprPrint.getExpr().struct.getKind();
@@ -83,6 +93,9 @@ public class CodeGenerator extends VisitorAdaptor {
 		// upisi tu vrednost u promenljivu
 		Code.store(designatorObj);
 	}
+
+	// ==================================== designator
+	// ======================================
 
 	public void visit(DesignatorStatementAssign designatorAssign) {
 		Obj designatorObj = designatorAssign.getDesignator().obj;
@@ -163,6 +176,9 @@ public class CodeGenerator extends VisitorAdaptor {
 		}
 	}
 
+	// ================================= expressions
+	// ============================================
+
 	public void visit(NegativeSingleTermExpr negativeSingleTermExpr) {
 		Code.put(Code.neg);
 	}
@@ -197,6 +213,100 @@ public class CodeGenerator extends VisitorAdaptor {
 		Code.put(type.getKind() == Struct.Char ? 0 : 1);
 	}
 
+	// ================================= relop
+	// ================================================
+
+	public void visit(EqualToOp equalToOp) {
+		currentRelop = Code.eq;
+	}
+
+	public void visit(NotEqualToOp notEqualToOp) {
+		currentRelop = Code.ne;
+	}
+
+	public void visit(GreaterThenOp greaterThenOp) {
+		currentRelop = Code.gt;
+	}
+
+	public void visit(GreaterThenOrEqualToOp greaterThenOrEqualToOp) {
+		currentRelop = Code.ge;
+	}
+
+	public void visit(LessThenOp lessThenOp) {
+		currentRelop = Code.lt;
+	}
+
+	public void visit(LessThenOrEqualToOp lessThenOrEqualToOp) {
+		currentRelop = Code.le;
+	}
+
+	// ================================= Condition ============================
+
+	public void visit(CondFactExprWithRelop condFactExprWithRelop) {
+		Code.putFalseJump(currentRelop, 0);
+		currentCondFalse.add(Code.pc - 2);
+	}
+
+	public void visit(CondFactExpr condFactExpr) {
+		Code.put(Code.const_1);
+		Code.putFalseJump(Code.eq, 0);
+		currentCondFalse.add(Code.pc - 2);
+	}
+
+	public void visit(Or or) {
+		Code.put(Code.jmp);
+		Code.put2(0 - Code.pc + 1);
+
+		currentCondTrue.add(Code.pc - 2);
+
+		for (Integer adr : currentCondFalse) {
+			Code.fixup(adr);
+		}
+
+		currentCondFalse = new ArrayList<Integer>();
+	}
+
+	public void visit(UnmatchedIfElse unmatchedIf) {
+		if (!endOfElse.isEmpty()) {
+			Code.fixup(endOfElse.remove(0));
+		}
+	}
+
+	public void visit(MatchedIfElse unmatchedIf) {
+		if (!endOfElse.isEmpty()) {
+			Code.fixup(endOfElse.remove(0));
+		}
+	}
+
+	public void visit(Else else1) {
+
+		Code.putJump(0);
+		endOfElse.add(Code.pc - 2);
+
+		for (Integer address : currentCondFalse) {
+			Code.fixup(address);
+		}
+		currentCondFalse = new ArrayList<Integer>();
+	}
+
+	public void visit(UnmatchedIf unmatchedIf) {
+		for (Integer address : currentCondFalse) {
+			Code.fixup(address);
+		}
+		if (!endOfElse.isEmpty()) {
+			Code.fixup(endOfElse.remove(0));
+		}
+		currentCondFalse = new ArrayList<Integer>();
+	}
+
+	public void visit(RparenIfCondition rparenIfCondition) {
+		for (Integer address : currentCondTrue) {
+			Code.fixup(address);
+		}
+		currentCondTrue = new ArrayList<Integer>();
+	}
+
+	
 	/*
 	 * private void generateCodeForPredefineMethodCHR() { Obj chrObj =
 	 * MySymTab.chrObj; chrObj.setAdr(Code.pc);

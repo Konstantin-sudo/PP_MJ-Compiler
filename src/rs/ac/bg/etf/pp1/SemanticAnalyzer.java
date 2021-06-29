@@ -470,7 +470,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 	}
 
-	// ============= Relation operators
+	// ============= Relation operators and Conditions
 
 	public void visit(CondFactExpr condFactExpr) {
 		if (condFactExpr.getExpr().struct.getKind() != Struct.Bool) {

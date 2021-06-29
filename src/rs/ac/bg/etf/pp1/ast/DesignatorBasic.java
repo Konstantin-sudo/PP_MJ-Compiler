@@ -1,24 +1,24 @@
 // generated with ast extension for cup
 // version 0.8
-// 27/5/2021 17:2:4
+// 29/5/2021 23:17:27
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class FactorNumConst extends Factor {
+public class DesignatorBasic extends Designator {
 
-    private Integer N1;
+    private String designatorName;
 
-    public FactorNumConst (Integer N1) {
-        this.N1=N1;
+    public DesignatorBasic (String designatorName) {
+        this.designatorName=designatorName;
     }
 
-    public Integer getN1() {
-        return N1;
+    public String getDesignatorName() {
+        return designatorName;
     }
 
-    public void setN1(Integer N1) {
-        this.N1=N1;
+    public void setDesignatorName(String designatorName) {
+        this.designatorName=designatorName;
     }
 
     public void accept(Visitor visitor) {
@@ -39,13 +39,13 @@ public class FactorNumConst extends Factor {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("FactorNumConst(\n");
+        buffer.append("DesignatorBasic(\n");
 
-        buffer.append(" "+tab+N1);
+        buffer.append(" "+tab+designatorName);
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [FactorNumConst]");
+        buffer.append(") [DesignatorBasic]");
         return buffer.toString();
     }
 }

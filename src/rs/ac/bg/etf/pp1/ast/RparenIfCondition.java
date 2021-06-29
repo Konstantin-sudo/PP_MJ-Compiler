@@ -1,24 +1,31 @@
 // generated with ast extension for cup
 // version 0.8
-// 27/5/2021 17:2:4
+// 29/5/2021 23:17:27
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class FactorCharConst extends Factor {
+public class RparenIfCondition implements SyntaxNode {
 
-    private Character C1;
-
-    public FactorCharConst (Character C1) {
-        this.C1=C1;
+    private SyntaxNode parent;
+    private int line;
+    public RparenIfCondition () {
     }
 
-    public Character getC1() {
-        return C1;
+    public SyntaxNode getParent() {
+        return parent;
     }
 
-    public void setC1(Character C1) {
-        this.C1=C1;
+    public void setParent(SyntaxNode parent) {
+        this.parent=parent;
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public void setLine(int line) {
+        this.line=line;
     }
 
     public void accept(Visitor visitor) {
@@ -39,13 +46,10 @@ public class FactorCharConst extends Factor {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("FactorCharConst(\n");
-
-        buffer.append(" "+tab+C1);
-        buffer.append("\n");
+        buffer.append("RparenIfCondition(\n");
 
         buffer.append(tab);
-        buffer.append(") [FactorCharConst]");
+        buffer.append(") [RparenIfCondition]");
         return buffer.toString();
     }
 }

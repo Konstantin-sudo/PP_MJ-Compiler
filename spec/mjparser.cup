@@ -76,7 +76,7 @@ nonterminal FormPars, FormParsDecl;
 nonterminal Statement, Matched, Unmatched, DesignatorStatement;
 nonterminal Addop, Mulop;
 nonterminal Relop, CondFact;
-nonterminal Condition, CondTerm;
+nonterminal Condition, CondTerm, Or, Else, RparenIfCondition;
 
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program;
@@ -195,9 +195,9 @@ Statement ::= (MatchedStatement) Matched
 		   	  (UnmatchedStatement) Unmatched
 		   	  ; 
 
-Unmatched ::= (UnmatchedIf) IF LPAREN Condition RPAREN Statement
+Unmatched ::= (UnmatchedIf) IF LPAREN Condition RparenIfCondition Statement
 		 	  |
-		 	  (UnmatchedIfElse) IF LPAREN Condition RPAREN Matched ELSE Unmatched
+		 	  (UnmatchedIfElse) IF LPAREN Condition RparenIfCondition Matched Else Unmatched
 		 	  ;
 		 	
 Matched ::= (DesignatorStmt) DesignatorStatement SEMI
@@ -208,9 +208,12 @@ Matched ::= (DesignatorStmt) DesignatorStatement SEMI
 			|
 			(NestedStatement) LBRACE StatementList RBRACE
 			|
-			(MatchedIfElse) IF LPAREN Condition RPAREN Matched ELSE Matched
+			(MatchedIfElse) IF LPAREN Condition RparenIfCondition Matched Else Matched
 			;
-			  
+	
+RparenIfCondition ::= (RparenIfCondition) RPAREN;
+
+Else ::= (Else) ELSE;		  
 		
 DesignatorStatement ::= (DesignatorStatementAssign) Designator EQUALS ExprToAssign
 						|
@@ -294,10 +297,12 @@ Relop ::= (EqualToOp) EQUAL_TO
 
 	/*------------------------------- Conditions -------------------------------*/
 	
-Condition ::= (ConditionTermDisjunctionList) Condition OR CondTerm
+Condition ::= (ConditionTermDisjunctionList) Condition Or CondTerm
 			  |
 			  (SingleConditionTerm) CondTerm
 			  ;
+			  
+Or ::= (Or) OR;
 			  
 CondTerm ::= (ConditionFactConjunctionList) CondTerm AND CondFact
 			 |

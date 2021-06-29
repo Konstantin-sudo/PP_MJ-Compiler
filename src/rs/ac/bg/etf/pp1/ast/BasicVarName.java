@@ -1,24 +1,24 @@
 // generated with ast extension for cup
 // version 0.8
-// 27/5/2021 17:2:4
+// 29/5/2021 23:17:27
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ArrayIdent extends VarIdent {
+public class BasicVarName extends VarIdent {
 
-    private String arrayIdent;
+    private String varName;
 
-    public ArrayIdent (String arrayIdent) {
-        this.arrayIdent=arrayIdent;
+    public BasicVarName (String varName) {
+        this.varName=varName;
     }
 
-    public String getArrayIdent() {
-        return arrayIdent;
+    public String getVarName() {
+        return varName;
     }
 
-    public void setArrayIdent(String arrayIdent) {
-        this.arrayIdent=arrayIdent;
+    public void setVarName(String varName) {
+        this.varName=varName;
     }
 
     public void accept(Visitor visitor) {
@@ -39,13 +39,13 @@ public class ArrayIdent extends VarIdent {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ArrayIdent(\n");
+        buffer.append("BasicVarName(\n");
 
-        buffer.append(" "+tab+arrayIdent);
+        buffer.append(" "+tab+varName);
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [ArrayIdent]");
+        buffer.append(") [BasicVarName]");
         return buffer.toString();
     }
 }

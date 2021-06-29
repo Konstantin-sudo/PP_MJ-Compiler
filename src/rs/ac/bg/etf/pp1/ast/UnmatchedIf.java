@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 27/5/2021 17:2:4
+// 29/5/2021 23:17:27
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,11 +8,14 @@ package rs.ac.bg.etf.pp1.ast;
 public class UnmatchedIf extends Unmatched {
 
     private Condition Condition;
+    private RparenIfCondition RparenIfCondition;
     private Statement Statement;
 
-    public UnmatchedIf (Condition Condition, Statement Statement) {
+    public UnmatchedIf (Condition Condition, RparenIfCondition RparenIfCondition, Statement Statement) {
         this.Condition=Condition;
         if(Condition!=null) Condition.setParent(this);
+        this.RparenIfCondition=RparenIfCondition;
+        if(RparenIfCondition!=null) RparenIfCondition.setParent(this);
         this.Statement=Statement;
         if(Statement!=null) Statement.setParent(this);
     }
@@ -23,6 +26,14 @@ public class UnmatchedIf extends Unmatched {
 
     public void setCondition(Condition Condition) {
         this.Condition=Condition;
+    }
+
+    public RparenIfCondition getRparenIfCondition() {
+        return RparenIfCondition;
+    }
+
+    public void setRparenIfCondition(RparenIfCondition RparenIfCondition) {
+        this.RparenIfCondition=RparenIfCondition;
     }
 
     public Statement getStatement() {
@@ -39,17 +50,20 @@ public class UnmatchedIf extends Unmatched {
 
     public void childrenAccept(Visitor visitor) {
         if(Condition!=null) Condition.accept(visitor);
+        if(RparenIfCondition!=null) RparenIfCondition.accept(visitor);
         if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(Condition!=null) Condition.traverseTopDown(visitor);
+        if(RparenIfCondition!=null) RparenIfCondition.traverseTopDown(visitor);
         if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(Condition!=null) Condition.traverseBottomUp(visitor);
+        if(RparenIfCondition!=null) RparenIfCondition.traverseBottomUp(visitor);
         if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -61,6 +75,12 @@ public class UnmatchedIf extends Unmatched {
 
         if(Condition!=null)
             buffer.append(Condition.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
+
+        if(RparenIfCondition!=null)
+            buffer.append(RparenIfCondition.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

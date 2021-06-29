@@ -188,7 +188,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 			if (formParsCntInCurrMethod != 0) {
 				report_error("Greska: Metoda main ne sme imati argumente! Greska", methodDecl);
-				return;
 			}
 		}
 

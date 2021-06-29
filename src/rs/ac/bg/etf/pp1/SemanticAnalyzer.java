@@ -251,7 +251,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public void visit(ReadStatement readStatement) {
 		Obj designatorObj = readStatement.getDesignator().obj;
 
-		if (designatorObj.getKind() == Obj.Var && designatorObj.getKind() == Obj.Elem) {
+		if (designatorObj.getKind() == Obj.Var || designatorObj.getKind() == Obj.Elem) {
 			Struct designatorType = designatorObj.getType();
 			if (designatorType.getKind() != Struct.Int && designatorType.getKind() != Struct.Char
 					&& designatorType.getKind() != Struct.Bool) {

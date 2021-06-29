@@ -202,7 +202,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 		String formParsName = basicFormParsDecl.getFormParName();
 
-		if (MySymTab.currentScope().findSymbol(formParsName) == MySymTab.noObj) {
+		if (MySymTab.currentScope().findSymbol(formParsName) == null) {
 
 			MySymTab.insert(Obj.Var, formParsName, currentlyReadType);
 
@@ -218,7 +218,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 		String formParsName = arrayFormParsDecl.getFormParArrayName();
 
-		if (MySymTab.currentScope().findSymbol(formParsName) == MySymTab.noObj) {
+		if (MySymTab.currentScope().findSymbol(formParsName) == null) {
 
 			MySymTab.insert(Obj.Var, formParsName, new Struct(Struct.Array, currentlyReadType));
 
@@ -240,11 +240,11 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			Struct dst = designatorStatementAssign.getDesignator().obj.getType();
 			Struct src = designatorStatementAssign.getExprToAssign().struct;
 
-			if (!(dst.compatibleWith(src) && src.assignableTo(dst))) {
-				report_error("Greska: ", designatorStatementAssign);
+			if (!src.assignableTo(dst)) {
+				report_error("Greska: src i dst tipovi nisu kompatibilni . Greska", designatorStatementAssign);
 			}
 		} else {
-			report_error("Greska: ", designatorStatementAssign);
+			report_error("Greska: Dst mora biti varijabla ili element niza. Greska", designatorStatementAssign);
 		}
 	}
 
@@ -305,8 +305,17 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		String designatorName = designatorBasic.getDesignatorName();
 
 		Obj designator = MySymTab.currentScope().findSymbol(designatorName);
-
-		if (designator != MySymTab.noObj) {
+		if (designator == null) {
+			designator = MySymTab.find(designatorName);
+			if (designator == MySymTab.noObj) {
+				designator = null;
+			} else {
+				if (designator.getLevel() != 0) {
+					designator = null;
+				}
+			}
+		}
+		if (designator != null) {
 
 			designatorBasic.obj = designator;
 
@@ -314,8 +323,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 			report_error("Greska: Referencirani simbol: '" + designatorName + "' ne postoji u tabeli simbola. Greska",
 					designatorBasic);
-
 		}
+
 	}
 
 	public void visit(DesignatorArray designatorArray) {
@@ -323,24 +332,26 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		String designatorName = designatorArray.getDesignatorName();
 
 		Obj designator = MySymTab.currentScope().findSymbol(designatorName);
-		if (designator != MySymTab.noObj) {
-
-			if (designator.getType().getKind() == Struct.Array) {
-
-				if (designatorArray.getExpr().struct.getKind() == Struct.Int) {
-
-					designatorArray.obj = new Obj(Obj.Elem, designator.getName(), designator.getType().getElemType());
-
-				} else {
-
-					report_error("Greska: ", designatorArray);
-
+		if (designator == null) {
+			designator = MySymTab.find(designatorName);
+			if (designator == MySymTab.noObj) {
+				designator = null;
+			} else {
+				if (designator.getLevel() != 0) {
+					designator = null;
 				}
-
+			}
+		}
+		if (designator != null) {
+			if (designator.getType().getKind() == Struct.Array) {
+				if (designatorArray.getExpr().struct.getKind() == Struct.Int) {
+					designatorArray.obj = new Obj(Obj.Elem, designator.getName(), designator.getType().getElemType());
+				} else {
+					report_error("Greska: ", designatorArray);
+				}
 			} else {
 				report_error("Greska: ", designatorArray);
 			}
-
 		} else {
 			report_error("Greska: Referencirani simbol: '" + designatorName + "' ne postoji u tabeli simbola. Greska",
 					designatorArray);
@@ -364,7 +375,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			negativeSingleTermExpr.struct = negativeSingleTermExpr.getTerm().struct;
 
 		} else {
-			report_error("Greska: -term", negativeSingleTermExpr);
+			report_error("Greska: Clan izraza '-term' je tipa: '" + negativeSingleTermExpr.getTerm().struct.getKind()
+					+ "' a mora biti tipa int. Greska", negativeSingleTermExpr);
 		}
 
 	}
@@ -376,7 +388,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			termAddopExprList.struct = termAddopExprList.getTerm().struct;
 
 		} else {
-			report_error("Greska: expr addop term", termAddopExprList);
+			report_error("Greska: Clanovi izraza 'expr addop term' moraju biti tipa int. Greska", termAddopExprList);
 		}
 	}
 
@@ -391,7 +403,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			termMulopFactorList.struct = termMulopFactorList.getTerm().struct;
 
 		} else {
-			report_error("Greska: term mulop factor", termMulopFactorList);
+			report_error("Greska: Clanovi izraza 'term mulop factor' moraju biti tipa int. Greska",
+					termMulopFactorList);
 		}
 	}
 
@@ -412,7 +425,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		if (factorArray.getExpr().struct.getKind() == Struct.Int) {
 			factorArray.struct = new Struct(Struct.Array, factorArray.getType().struct);
 		} else {
-			report_error("Greska: ", factorArray);
+			report_error("Greska: Index pri referenciranju elem niza mora biti tipa int. Greska", factorArray);
 		}
 
 	}
@@ -421,7 +434,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 	public void visit(CondFactExpr condFactExpr) {
 		if (condFactExpr.getExpr().struct.getKind() != Struct.Bool) {
-			report_error("Greksa: ", condFactExpr);
+			report_error("Greksa: Clan relacionog izraza mora biti tipa bool. Greska", condFactExpr);
 		}
 	}
 
@@ -430,18 +443,24 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		Struct expr2 = condFactExprWithRelop.getExpr1().struct;
 
 		if (expr1.getKind() == Struct.Bool) {
-			report_error("Greska: ", condFactExprWithRelop);
+			report_error(
+					"Greska: Prvi clan relacionog izraza je tipa bool. Izrazi tipa bool se ne mogu porediti. Greska",
+					condFactExprWithRelop);
 		} else if (expr2.getKind() == Struct.Bool) {
-			report_error("Greska: ", condFactExprWithRelop);
+			report_error(
+					"Greska: Drugi clan relacionog izraza nije tipa bool. Izrazi tipa bool se ne mogu porediti. Greska",
+					condFactExprWithRelop);
 		} else if (expr1.compatibleWith(expr2)) {
 			if (expr1.getKind() == Struct.Array || expr2.getKind() == Struct.Array) {
 				if (!(condFactExprWithRelop.getRelop() instanceof EqualToOp
 						|| condFactExprWithRelop.getRelop() instanceof NotEqualToOp)) {
-					report_error("Greska: ", condFactExprWithRelop);
+					report_error(
+							"Greska: Uz promenjlive tipa niz u relacionom izrazu je moguce koristiti samo relacione operatore: '==' i '!='. Greska",
+							condFactExprWithRelop);
 				}
 			}
 		} else {
-			report_error("Greska: ", condFactExprWithRelop);
+			report_error("Greska: Clanovi relacionog izraza nisu kompatibilni. Greska", condFactExprWithRelop);
 		}
 	}
 

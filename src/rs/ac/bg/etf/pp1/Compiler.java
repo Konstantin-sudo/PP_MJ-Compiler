@@ -47,6 +47,12 @@ public class Compiler {
 			SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
 			prog.traverseBottomUp(semanticAnalyzer); 
 			
+			if(semanticAnalyzer.isSuccessfullyFinished()) {
+				log.info("Semanticka analiza uspesno zavrsena!");
+			}else{
+				log.error("Semanticka analiza nije uspesno zavrsena!");
+			}
+			
 			MySymTab.dump();
 			
 			// ispis prepoznatih programskih konstrukcija

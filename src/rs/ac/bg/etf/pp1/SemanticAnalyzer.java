@@ -231,6 +231,21 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		}
 	}
 
+	public void visit(PrintStatement printStatement) {
+		int exprKind = printStatement.getExprPrint().struct.getKind();
+		if (exprKind != Struct.Int && exprKind != Struct.Char && exprKind != Struct.Bool) {
+			report_error("Greska: Funkcija print prima argumente tipa int, char ili bool", printStatement);
+		}
+	}
+
+	public void visit(SingleExprPrint singleExprPrint) {
+		singleExprPrint.struct = singleExprPrint.getExpr().struct;
+	}
+
+	public void visit(ExprPrintAndNumConst exprPrintAndNumConst) {
+		exprPrintAndNumConst.struct = exprPrintAndNumConst.getExpr().struct;
+	}
+
 	// =============================== Statements ===============================
 
 	public void visit(DesignatorStatementAssign designatorStatementAssign) {

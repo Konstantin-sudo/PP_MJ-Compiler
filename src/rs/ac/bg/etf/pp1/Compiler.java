@@ -13,7 +13,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import java_cup.runtime.Symbol;
 import rs.ac.bg.etf.pp1.ast.Program;
 import rs.ac.bg.etf.pp1.util.Log4JUtils;
-import rs.etf.pp1.mj.runtime.Code;
+import rs.etf.pp1.mj.runtime.*;
 
 public class Compiler {
 
@@ -28,7 +28,7 @@ public class Compiler {
 
 		Reader br = null;
 		try {
-			File sourceCode = new File("test/test301.mj");
+			File sourceCode = new File("test/program.mj");
 			log.info("Compiling source file: " + sourceCode.getAbsolutePath());
 
 			log.info("=================================== SINTAKSNA ANALIZA ===================================");
@@ -49,6 +49,8 @@ public class Compiler {
 			SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
 			prog.traverseBottomUp(semanticAnalyzer);
 
+			MySymTab.dump();
+			
 			if (semanticAnalyzer.isSuccessfullyFinished()) {
 				File objFile = new File("test/program.obj");
 				if (objFile.exists())
@@ -64,7 +66,7 @@ public class Compiler {
 				log.error("Semanticka analiza nije uspesno zavrsena!");
 			}
 
-			MySymTab.dump();
+			
 
 			// ispis prepoznatih programskih konstrukcija
 			log.info(" Globalno deklarisanih promenljivih ima = " + semanticAnalyzer.globalVarDeclNumber);

@@ -270,7 +270,7 @@ Addop ::= (PlusOp) PLUS
 		  (MinusOp) MINUS
 		  ;
 
-Mulop ::= (MultipleOp) MUL
+Mulop ::= (MultiplyOp) MUL
 		  |
 		  (DivideOp) DIV 
 		  |

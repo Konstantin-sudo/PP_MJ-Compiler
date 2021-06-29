@@ -143,7 +143,8 @@ public class CodeGenerator extends VisitorAdaptor {
 	public void visit(DesignatorArrayIdent designatorArrayIdent) {
 		Class parentOfParentClass = designatorArrayIdent.getParent().getParent().getClass();
 
-		if (parentOfParentClass.equals(DesignatorStatementInc.class) || parentOfParentClass.equals(DesignatorStatementDec.class)
+		if (parentOfParentClass.equals(DesignatorStatementInc.class)
+				|| parentOfParentClass.equals(DesignatorStatementDec.class)
 				|| parentOfParentClass.equals(FactorDesignator.class)) {
 			Code.load(designatorArrayIdent.obj);
 		}
@@ -162,8 +163,38 @@ public class CodeGenerator extends VisitorAdaptor {
 		}
 	}
 
+	public void visit(NegativeSingleTermExpr negativeSingleTermExpr) {
+		Code.put(Code.neg);
+	}
+
+	public void visit(TermAddopExprList termAddopExprList) {
+		Class addopClass = termAddopExprList.getAddop().getClass();
+		if (addopClass.equals(PlusOp.class)) {
+			Code.put(Code.add);
+		} else {
+			Code.put(Code.sub);
+		}
+	}
+
+	public void visit(TermMulopFactorList termMulopFactorList) {
+		Class mulopClass = termMulopFactorList.getMulop().getClass();
+		if (mulopClass.equals(MultiplyOp.class)) {
+			Code.put(Code.mul);
+		} else if (mulopClass.equals(DivideOp.class)) {
+			Code.put(Code.div);
+		} else {
+			Code.put(Code.rem);
+		}
+	}
+
 	public void visit(FactorConst factorConst) {
 		Code.load(factorConst.getConstValue().obj);
+	}
+
+	public void visit(FactorArray factorArray) {
+		Struct type = factorArray.getType().struct;
+		Code.put(Code.newarray);
+		Code.put(type.getKind() == Struct.Char ? 0 : 1);
 	}
 
 	/*

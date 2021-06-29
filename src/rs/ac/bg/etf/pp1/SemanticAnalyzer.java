@@ -241,10 +241,15 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			Struct src = designatorStatementAssign.getExprToAssign().struct;
 
 			if (!src.assignableTo(dst)) {
-				report_error("Greska: src i dst tipovi nisu kompatibilni . Greska", designatorStatementAssign);
+				report_error("Greska: src se ne moze dodeliti dst - tipovi nisu kompatibilni. Greska",
+						designatorStatementAssign);
 			}
 		} else {
-			report_error("Greska: Dst mora biti varijabla ili element niza. Greska", designatorStatementAssign);
+			if (designatorKind == Obj.NO_VALUE) {
+				report_error("Greska: Dst nije deklarisan. Greska", designatorStatementAssign);
+			} else {
+				report_error("Greska: Dst mora biti varijabla ili element niza. Greska", designatorStatementAssign);
+			}
 		}
 	}
 
@@ -320,7 +325,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			designatorBasic.obj = designator;
 
 		} else {
-
+			designatorBasic.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
 			report_error("Greska: Referencirani simbol: '" + designatorName + "' ne postoji u tabeli simbola. Greska",
 					designatorBasic);
 		}
@@ -347,12 +352,17 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 				if (designatorArray.getExpr().struct.getKind() == Struct.Int) {
 					designatorArray.obj = new Obj(Obj.Elem, designator.getName(), designator.getType().getElemType());
 				} else {
-					report_error("Greska: ", designatorArray);
+					designatorArray.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
+					report_error("Greska: Pri indeksiranju niza: '" + designatorName
+							+ "' prosledjen je izraz koji nije tipa int. Greska", designatorArray);
 				}
 			} else {
-				report_error("Greska: ", designatorArray);
+				designatorArray.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
+				report_error("Greska: Referencirani simbol: '" + designatorName + "' nije niz. Greska",
+						designatorArray);
 			}
 		} else {
+			designatorArray.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
 			report_error("Greska: Referencirani simbol: '" + designatorName + "' ne postoji u tabeli simbola. Greska",
 					designatorArray);
 		}

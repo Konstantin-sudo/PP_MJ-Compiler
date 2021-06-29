@@ -19,6 +19,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	int mainFunctionCnt = 0;
 	int formParsCntInCurrMethod = 0;
 
+	int nVars = 0;
 	boolean errorDetected = false;
 
 	Logger log = Logger.getLogger(getClass());
@@ -48,6 +49,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	}
 
 	public void visit(Program program) {
+		nVars = MySymTab.currentScope.getnVars();
 		MySymTab.chainLocalSymbols(program.getProgName().obj);
 		MySymTab.closeScope();
 		if (mainFunctionCnt != 1) {

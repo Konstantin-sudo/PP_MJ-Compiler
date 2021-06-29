@@ -231,10 +231,12 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		}
 	}
 
+	// =============================== Statements ===============================
+
 	public void visit(PrintStatement printStatement) {
 		int exprKind = printStatement.getExprPrint().struct.getKind();
 		if (exprKind != Struct.Int && exprKind != Struct.Char && exprKind != Struct.Bool) {
-			report_error("Greska: Funkcija print prima argumente tipa int, char ili bool", printStatement);
+			report_error("Greska: Funkcija print prima argumente tipa int, char ili bool. Greska", printStatement);
 		}
 	}
 
@@ -246,7 +248,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		exprPrintAndNumConst.struct = exprPrintAndNumConst.getExpr().struct;
 	}
 
-	// =============================== Statements ===============================
+	public void visit(ReadStatement readStatement) {
+		Obj designatorObj = readStatement.getDesignator().obj;
+
+		if (designatorObj.getKind() == Obj.Var && designatorObj.getKind() == Obj.Elem) {
+			Struct designatorType = designatorObj.getType();
+			if (designatorType.getKind() != Struct.Int && designatorType.getKind() != Struct.Char
+					&& designatorType.getKind() != Struct.Bool) {
+				report_error("Greska: Funkcija read prima argumente tipa int, char ili bool. Greska", readStatement);
+			}
+		} else {
+			report_error("Greska: Funkcija read prima argumente koji su ili promenljiva ili element niza. Greska",
+					readStatement);
+		}
+	}
 
 	public void visit(DesignatorStatementAssign designatorStatementAssign) {
 
@@ -272,25 +287,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public void visit(DesignatorStatementInc designatorStatementInc) {
 
 		Obj designator = designatorStatementInc.getDesignator().obj;
-
 		Struct designatorType = designator.getType();
 
-		if (designatorType.getKind() != Struct.Int) {
-
-			if (designatorType.getKind() == Struct.Array) {
-
-				if (designatorType.getElemType().getKind() != Struct.Int) {
-					report_error(
-							"Greska: Izraz '" + designator.getName()
-									+ "++' se moze pozvati samo za promenljive tipa int ili tipa niz int-ova. Greska",
-							designatorStatementInc);
-				}
-			} else {
+		if (designator.getKind() == Obj.Var || designator.getKind() == Obj.Elem) {
+			if (designatorType.getKind() != Struct.Int) {
 				report_error(
 						"Greska: Izraz '" + designator.getName()
-								+ "++' se moze pozvati samo za promenljive tipa int ili tipa niz int-ova. Greska",
+								+ "++' se moze pozvati samo za promenljive tipa int ili elemente niza int-ova. Greska",
 						designatorStatementInc);
 			}
+		} else {
+			report_error(
+					"Greska: Izraz '" + designator.getName()
+							+ "++' se moze pozvati samo za promenljive ili elemente niza. Greska",
+					designatorStatementInc);
 		}
 
 	}
@@ -298,25 +308,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	public void visit(DesignatorStatementDec designatorStatementDec) {
 
 		Obj designator = designatorStatementDec.getDesignator().obj;
-
 		Struct designatorType = designator.getType();
 
-		if (designatorType.getKind() != Struct.Int) {
-
-			if (designatorType.getKind() == Struct.Array) {
-
-				if (designatorType.getElemType().getKind() != Struct.Int) {
-					report_error(
-							"Greska: Izraz '" + designator.getName()
-									+ "--' se moze pozvati samo za promenljive tipa int ili tipa niz int-ova. Greska",
-							designatorStatementDec);
-				}
-			} else {
+		if (designator.getKind() == Obj.Var || designator.getKind() == Obj.Elem) {
+			if (designatorType.getKind() != Struct.Int) {
 				report_error(
 						"Greska: Izraz '" + designator.getName()
-								+ "--' se moze pozvati samo za promenljive tipa int ili tipa niz int-ova. Greska",
+								+ "--' se moze pozvati samo za promenljive tipa int ili elemente niza int-ova. Greska",
 						designatorStatementDec);
 			}
+		} else {
+			report_error(
+					"Greska: Izraz '" + designator.getName()
+							+ "--' se moze pozvati samo za promenljive ili elemente niza. Greska",
+					designatorStatementDec);
 		}
 
 	}
@@ -325,20 +330,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 		String designatorName = designatorBasic.getDesignatorName();
 
-		Obj designator = MySymTab.currentScope().findSymbol(designatorName);
-		if (designator == null) {
-			designator = MySymTab.find(designatorName);
-			if (designator == MySymTab.noObj) {
-				designator = null;
+		Obj var = MySymTab.currentScope().findSymbol(designatorName);
+		if (var == null) {
+			var = MySymTab.find(designatorName);
+			if (var == MySymTab.noObj) {
+				var = null;
 			} else {
-				if (designator.getLevel() != 0) {
-					designator = null;
+				if (var.getLevel() != 0) {
+					var = null;
 				}
 			}
 		}
-		if (designator != null) {
+		if (var != null) {
 
-			designatorBasic.obj = designator;
+			designatorBasic.obj = var;
 
 		} else {
 			designatorBasic.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
@@ -350,37 +355,46 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
 	public void visit(DesignatorArray designatorArray) {
 
-		String designatorName = designatorArray.getDesignatorName();
+		String arrayVarName = designatorArray.getDesignatorArrayIdent().getVarName();
 
-		Obj designator = MySymTab.currentScope().findSymbol(designatorName);
-		if (designator == null) {
-			designator = MySymTab.find(designatorName);
-			if (designator == MySymTab.noObj) {
-				designator = null;
+		Obj arrayVar = designatorArray.getDesignatorArrayIdent().obj;
+
+		if (arrayVar.getKind() != Obj.NO_VALUE) {
+			if (designatorArray.getExpr().struct.getKind() == Struct.Int) {
+				designatorArray.obj = new Obj(Obj.Elem, arrayVar.getName(), arrayVar.getType().getElemType());
 			} else {
-				if (designator.getLevel() != 0) {
-					designator = null;
+				designatorArray.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
+				report_error("Greska: Pri indeksiranju niza: '" + arrayVarName
+						+ "' prosledjen je izraz koji nije tipa int. Greska", designatorArray);
+			}
+		}
+	}
+
+	public void visit(DesignatorArrayIdent designatorArrayIdent) {
+		String arrayVarName = designatorArrayIdent.getVarName();
+
+		Obj arrayVar = MySymTab.currentScope().findSymbol(arrayVarName);
+		if (arrayVar == null) {
+			arrayVar = MySymTab.find(arrayVarName);
+			if (arrayVar == MySymTab.noObj) {
+				arrayVar = null;
+			} else {
+				if (arrayVar.getLevel() != 0) {
+					arrayVar = null;
 				}
 			}
 		}
-		if (designator != null) {
-			if (designator.getType().getKind() == Struct.Array) {
-				if (designatorArray.getExpr().struct.getKind() == Struct.Int) {
-					designatorArray.obj = new Obj(Obj.Elem, designator.getName(), designator.getType().getElemType());
-				} else {
-					designatorArray.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
-					report_error("Greska: Pri indeksiranju niza: '" + designatorName
-							+ "' prosledjen je izraz koji nije tipa int. Greska", designatorArray);
-				}
+		if (arrayVar != null) {
+			if (arrayVar.getType().getKind() == Struct.Array) {
+				designatorArrayIdent.obj = arrayVar;
 			} else {
-				designatorArray.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
-				report_error("Greska: Referencirani simbol: '" + designatorName + "' nije niz. Greska",
-						designatorArray);
+				designatorArrayIdent.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
+				report_error("Greska: Referencirani simbol: '" + arrayVarName + "' nije niz. Greska", designatorArrayIdent);
 			}
 		} else {
-			designatorArray.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
-			report_error("Greska: Referencirani simbol: '" + designatorName + "' ne postoji u tabeli simbola. Greska",
-					designatorArray);
+			designatorArrayIdent.obj = new Obj(Obj.NO_VALUE, "", MySymTab.noType);
+			report_error("Greska: Referencirani simbol: '" + arrayVarName + "' ne postoji u tabeli simbola. Greska",
+					designatorArrayIdent);
 		}
 	}
 

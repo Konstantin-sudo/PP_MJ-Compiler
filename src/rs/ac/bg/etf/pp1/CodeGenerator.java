@@ -158,7 +158,8 @@ public class CodeGenerator extends VisitorAdaptor {
 
 		if (parentOfParentClass.equals(DesignatorStatementInc.class)
 				|| parentOfParentClass.equals(DesignatorStatementDec.class)
-				|| parentOfParentClass.equals(FactorDesignator.class)) {
+				|| parentOfParentClass.equals(FactorDesignator.class)
+				|| parentOfParentClass.equals(DesignatorStatementAssign.class)) {
 			Code.load(designatorArrayIdent.obj);
 		}
 	}

@@ -131,7 +131,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	}
 
 	public void visit(ConstValueBool constValueBool) {
-		int constValue = constValueBool.getConstValue() == "true" ? 1 : 0;
+		int constValue = constValueBool.getConstValue().equals("true") ? 1 : 0;
 		constValueBool.obj = new Obj(Obj.Con, "constValueBool", MySymTab.boolType, constValue, 0);
 	}
 

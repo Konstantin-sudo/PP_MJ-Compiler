@@ -73,17 +73,17 @@ nonterminal VarIdentList, VarIdent, VarIdentError;
 nonterminal MethodDecl, FormParsList, MethodVarDeclList, StatementList;
 nonterminal FormPars, FormParsDecl;
 
-nonterminal Statement, Matched, Unmatched, DesignatorStatement, ExprPrint;
+nonterminal Statement, Matched, Unmatched, DesignatorStatement;
 nonterminal Addop, Mulop;
 nonterminal Relop, CondFact;
-nonterminal Condition, CondTerm;
+nonterminal Condition, CondTerm, Or, Else, RparenIfCondition;
 
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program;
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ConstValue;
-nonterminal rs.etf.pp1.symboltable.concepts.Obj MethodName, Designator;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj MethodName, Designator, DesignatorArrayIdent;
 
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Expr, Factor, ExprToAssign;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Term, Expr, Factor, ExprToAssign, ExprPrint;
 
 
 
@@ -195,9 +195,9 @@ Statement ::= (MatchedStatement) Matched
 		   	  (UnmatchedStatement) Unmatched
 		   	  ; 
 
-Unmatched ::= (UnmatchedIf) IF LPAREN Condition RPAREN Statement
+Unmatched ::= (UnmatchedIf) IF LPAREN Condition RparenIfCondition Statement
 		 	  |
-		 	  (UnmatchedIfElse) IF LPAREN Condition RPAREN Matched ELSE Unmatched
+		 	  (UnmatchedIfElse) IF LPAREN Condition RparenIfCondition Matched Else Unmatched
 		 	  ;
 		 	
 Matched ::= (DesignatorStmt) DesignatorStatement SEMI
@@ -208,9 +208,12 @@ Matched ::= (DesignatorStmt) DesignatorStatement SEMI
 			|
 			(NestedStatement) LBRACE StatementList RBRACE
 			|
-			(MatchedIfElse) IF LPAREN Condition RPAREN Matched ELSE Matched
+			(MatchedIfElse) IF LPAREN Condition RparenIfCondition Matched Else Matched
 			;
-			  
+	
+RparenIfCondition ::= (RparenIfCondition) RPAREN;
+
+Else ::= (Else) ELSE;		  
 		
 DesignatorStatement ::= (DesignatorStatementAssign) Designator EQUALS ExprToAssign
 						|
@@ -229,9 +232,10 @@ ExprToAssign ::= (ExprToAssignSuccess)  Expr
 		
 Designator ::= (DesignatorBasic) IDENT:designatorName
 			   |
-			   (DesignatorArray) IDENT:designatorName LSQUARE Expr RSQUARE
+			   (DesignatorArray) DesignatorArrayIdent LSQUARE Expr RSQUARE
 			   ;
 
+DesignatorArrayIdent ::= (DesignatorArrayIdent) IDENT:varName; 
 
 	/*------------------------------- Expressions -------------------------------*/
 	
@@ -269,7 +273,7 @@ Addop ::= (PlusOp) PLUS
 		  (MinusOp) MINUS
 		  ;
 
-Mulop ::= (MultipleOp) MUL
+Mulop ::= (MultiplyOp) MUL
 		  |
 		  (DivideOp) DIV 
 		  |
@@ -293,10 +297,12 @@ Relop ::= (EqualToOp) EQUAL_TO
 
 	/*------------------------------- Conditions -------------------------------*/
 	
-Condition ::= (ConditionTermDisjunctionList) Condition OR CondTerm
+Condition ::= (ConditionTermDisjunctionList) Condition Or CondTerm
 			  |
 			  (SingleConditionTerm) CondTerm
 			  ;
+			  
+Or ::= (Or) OR;
 			  
 CondTerm ::= (ConditionFactConjunctionList) CondTerm AND CondFact
 			 |

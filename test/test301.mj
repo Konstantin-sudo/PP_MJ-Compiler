@@ -6,24 +6,11 @@ program test301
 	const int jedan = 1;
 	const int pet = 5;
 
-	int asdf;
-	char sd;
-	bool cond;
-	bool nizb[];
 	int niz[];
 	char nizch[];
-	int sd;
-	const char cjj = 4;
 	
 {
-
-	void asdaa(int k) char nizz[]; {}
-	
-	void dummy() int fl; {
-		nizb[1] = true;
-	}
-	
-	void main(int i)	
+	void main()	
 		int bodovi;
 	{
 		bodovi = 0;
@@ -59,24 +46,6 @@ program test301
 		if(false) print(bodovi + 20);
 		else print(bodovi);
 	}
-	
-	void func(char par){
-		print(2,2);
-		
-		if(1 > 23){
-			read(asdf);
-		} else{
-			if( niz[niz[pet]] > niz[jedan]){
-				print('j');
-				if(niz == niz){
-					asdf = 3;
-					kle = 'c';
-					asdf = niz['k'];
-				}
-			}
-		}
-	}
-	
 }
 
 

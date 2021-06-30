@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 27/5/2021 17:2:4
+// 30/5/2021 22:35:55
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,12 +8,12 @@ package rs.ac.bg.etf.pp1.ast;
 public class ArrayFormParsDecl extends FormParsDecl {
 
     private Type Type;
-    private String I2;
+    private String formParArrayName;
 
-    public ArrayFormParsDecl (Type Type, String I2) {
+    public ArrayFormParsDecl (Type Type, String formParArrayName) {
         this.Type=Type;
         if(Type!=null) Type.setParent(this);
-        this.I2=I2;
+        this.formParArrayName=formParArrayName;
     }
 
     public Type getType() {
@@ -24,12 +24,12 @@ public class ArrayFormParsDecl extends FormParsDecl {
         this.Type=Type;
     }
 
-    public String getI2() {
-        return I2;
+    public String getFormParArrayName() {
+        return formParArrayName;
     }
 
-    public void setI2(String I2) {
-        this.I2=I2;
+    public void setFormParArrayName(String formParArrayName) {
+        this.formParArrayName=formParArrayName;
     }
 
     public void accept(Visitor visitor) {
@@ -61,7 +61,7 @@ public class ArrayFormParsDecl extends FormParsDecl {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        buffer.append(" "+tab+I2);
+        buffer.append(" "+tab+formParArrayName);
         buffer.append("\n");
 
         buffer.append(tab);

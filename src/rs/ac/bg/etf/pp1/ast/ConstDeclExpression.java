@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 27/5/2021 17:2:4
+// 30/5/2021 22:35:55
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,21 +9,21 @@ public class ConstDeclExpression implements SyntaxNode {
 
     private SyntaxNode parent;
     private int line;
-    private String constIdent;
+    private String constName;
     private ConstValue ConstValue;
 
-    public ConstDeclExpression (String constIdent, ConstValue ConstValue) {
-        this.constIdent=constIdent;
+    public ConstDeclExpression (String constName, ConstValue ConstValue) {
+        this.constName=constName;
         this.ConstValue=ConstValue;
         if(ConstValue!=null) ConstValue.setParent(this);
     }
 
-    public String getConstIdent() {
-        return constIdent;
+    public String getConstName() {
+        return constName;
     }
 
-    public void setConstIdent(String constIdent) {
-        this.constIdent=constIdent;
+    public void setConstName(String constName) {
+        this.constName=constName;
     }
 
     public ConstValue getConstValue() {
@@ -73,7 +73,7 @@ public class ConstDeclExpression implements SyntaxNode {
         buffer.append(tab);
         buffer.append("ConstDeclExpression(\n");
 
-        buffer.append(" "+tab+constIdent);
+        buffer.append(" "+tab+constName);
         buffer.append("\n");
 
         if(ConstValue!=null)

@@ -1,0 +1,20 @@
+program MJProgram
+	int x; int y; 
+	int niz[];
+	const int tri = 3;
+{
+
+	void main() {
+		
+		y=1;
+		//y--;
+		//x = 4;
+		//niz[3]++;
+		
+		if(y < 2 && y > 3 || y == 1) {
+			y--;
+		} else{
+			y++;
+		}
+	}
+}
